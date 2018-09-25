@@ -452,7 +452,7 @@ def principal(Circuito):
 #if __name__ == "__main__":
     import sys
     import matplotlib.pyplot as plt
-    if Circuito =='CTSV mc + 4bitPRBS [FALHA].raw':
+    if Circuito =='CTSV mc + 4bitPRBS [FALHA].raw' or Circuito =='REDUX.raw':
         Variavel = 'V(bpo)'
     else:
         Variavel= 'V(vout)'

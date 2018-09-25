@@ -160,4 +160,10 @@ def UnsupervisedKmeans(df, sample):
     return (pred,kmeans)
 
 
+def findVout(traces):
+    voutIndex = None
+    for i, trace in enumerate(range(0, len(traces))):
+        if traces[trace].name == 'V(bpo)' or traces[trace].name == 'V(vout)':
+            voutIndex = i
 
+    return voutIndex

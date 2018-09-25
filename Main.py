@@ -18,6 +18,7 @@ if __name__ == "__main__":
     #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
     circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['REDUX.raw']
 
     conjunto = []
     conjunto1 = []
@@ -66,15 +67,10 @@ if __name__ == "__main__":
             dadosOriginais = pd.DataFrame(matriz)
             print("dados originais antes de salvar:\n {}".format(dadosOriginais))
             dadosOriginais.to_csv(csv_name, index = False, header=False)
-			
-            dadosOriginais = pd.read_csv(csv_name, header=None, low_memory = False)
-            print("dados originais depois de salvar:\n {}".format(dadosOriginais))
         else:
             print("Obtendo dados do arquivo '{}' .".format(csv_name))
-            dadosOriginais = pd.read_csv(csv_name, header=None, low_memory = False)
-            #dadosOriginais = dadosOriginais.replace(',','.')
+            dadosOriginais = pd.read_csv(csv_name,header=None, low_memory = False)
             print("dataframe lido:\n {}".format(dadosOriginais))
-            #dadosOriginais = np.zeros((10, 20))
             #conjunto.append(matriz)
             #dadosOriginais = pd.DataFrame(matriz)
 
