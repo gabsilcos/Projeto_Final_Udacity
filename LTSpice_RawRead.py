@@ -460,54 +460,28 @@ def principal(Circuito):
         raw_filename = sys.argv[1]
     else:
         raw_filename = Circuito
-    LTR = LTSpiceRawRead(raw_filename)
+
+    LTR = LTSpiceRawRead(raw_filename,traces_to_read=Variavel,loadmem=True)
     #print(LTR.get_trace_names())
+    fig0 = plt.figure()
+    plt.title("Dados Brutos")
     for trace in LTR.get_trace_names():
-        #print(LTR.get_trace(trace))
+        print("\nLendo grandeza: {}".format(LTR.get_trace(trace).name))
         Vo = LTR.get_trace(Variavel)
         x = LTR.get_trace(0)  # Zero is always the X axis
-        #file = open("Sallen_Vout.txt", "w")
-        ##print("escrita com sucesso")
-        # steps = LTR.get_steps(ana=4.0)
         steps = LTR.get_steps()
-        # for step in steps:
-       # #print("imagem")
-        df = {'time': [], Variavel: [],'step': []}
         Dados = []
         time = []
-        fig0 = plt.figure()
-        plt.title("dados brutos")
         for step in range(len(steps)):
-
             ValueVar = Vo.get_wave(step)
             Dados.append(ValueVar)
-            ##print(ValueVar)
             valueTime = x.get_wave(step)
             time.append(valueTime)
-
-
-
-            #df.to_csv('teste2.csv', header=None, index=None)
-            plt.plot(valueTime, ValueVar, label=LTR.steps[step])
-           #ValueVar1 = ValueVar['T']
-
-            #valueTime = valueTime.transpose()
-            #Dados = Dados.append(valueTime,ValueVar ,step)
-
-            # #print(steps[step])
-           # file.write(Vo.get_wave(step))
-        #file.close()
-        #plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=1.0)
-        #plt.legend()  # order a legend.
-        #fig0.show()
-        name = "brutos_{}".format(Circuito)
-        name = re.sub('\.', '', name)
-        plt.savefig(name, bbox_inches='tight')
-
-        #plt.savefig("Sallen_Vout", ext="png", close=False, verbose=True)
-
-
-        #plt.savefig("Sallen_Vout", ext="svg", close=True, verbose=True)
-        #plt.savefig('Sallen_Vout.png')
-        return (LTR, Dados, time)
-#mANDAR SAIR UM OBJRTO COM OS VALORES E TIM
+            plt.plot(valueTime, ValueVar)
+        print("\"{}\" lido.".format(LTR.get_trace(trace).name))
+		
+    name = "Brutos_{}".format(Circuito)
+    name = re.sub('\.', '', name)
+    plt.savefig(name, bbox_inches='tight')
+    print("Grandezas lidas.")
+    return (LTR, Dados, time)

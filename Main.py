@@ -41,39 +41,41 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-
 
         if not os.path.isfile(csv_name):
-            print("Obtendo dados do arquivo '{}' .".format(circuito))
+            print("Obtendo dados do arquivo '{}'...".format(circuito))
             saida, dados, time = LTSpice.principal(circuito)
             conjunto.append(saida)
+            voutIndex = AuxiliaryFunctions.findVout(saida._traces)
+			
+            #print("dados: \n{}".format(dados))
             MaiorIndice = 0
             for dado in dados:
                 if len(dado) > MaiorIndice:
                     MaiorIndice = len(dado)
 
-            print("\n\n")
             matriz = np.zeros((MaiorIndice, len(dados)))
+
 
             i = 0
             j = 0
-            for k in range(0, len(saida._traces[10].data)):
-                matriz[i][j] = saida._traces[10].data[k]
-                if ((saida._traces[10].axis.data[k]) == 0.0) and (k != 0):
-                    if ((saida._traces[10].axis.data[k - 1]) != 0.0):
+            for k in range(0, len(saida._traces[voutIndex].data)):
+                matriz[i][j] = saida._traces[voutIndex].data[k]
+                if ((saida._traces[voutIndex].axis.data[k]) == 0.0) and (k != 0):
+                    if ((saida._traces[voutIndex].axis.data[k - 1]) != 0.0):
                         j += 1
                         i = 0
                     else:
                         i += 1
                 else:
                     i += 1
+			
+            #print("matriz: \n {}".format(matriz))
             dadosOriginais = pd.DataFrame(matriz)
-            print("dados originais antes de salvar:\n {}".format(dadosOriginais))
             dadosOriginais.to_csv(csv_name, index = False, header=False)
+			
         else:
             print("Obtendo dados do arquivo '{}' .".format(csv_name))
             dadosOriginais = pd.read_csv(csv_name,header=None, low_memory = False)
-            print("dataframe lido:\n {}".format(dadosOriginais))
-            #conjunto.append(matriz)
-            #dadosOriginais = pd.DataFrame(matriz)
-
+			
         print("Leitura do arquivo terminada.\nSalvando características do circuito...")
 
         circuito = re.sub('\.', '', circuito)
@@ -91,7 +93,7 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-
         print("\nIniciando a aplicação do PAA")
         n_paa_segments = 100
-        dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments, matriz, dadosOriginais,circuito)
+        dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments,dadosOriginais,circuito)
         dataSize = dadosPaa.shape[0]
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -162,6 +164,7 @@ if __name__ == "__main__":
         # implementação do modelo de predição não supervisionado
         # modelo: Gaussian Mixed Models
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        '''
         print("\nIniciando a aplicação dos métodos de aprendizagem não-supervisionados")
         from sklearn.mixture import GMM  # importar outro método no lugar do GMM, talvez o dbscan
 
@@ -178,11 +181,12 @@ if __name__ == "__main__":
             for j in range(dataSize):
                 verificacao[k][j]= clts.predict(reduced_data.iloc[j, :].values.reshape(1, -1))
             k+=1
-
+        '''
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação do modelo de predição não supervisionado
         # modelo: Kmeans
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ''''
         print("Classificador: KMeans")
         preds, clts = AuxiliaryFunctions.UnsupervisedKmeans(reduced_data,pca_samples)
 
@@ -193,7 +197,7 @@ if __name__ == "__main__":
 
         for j in range(dataSize):
             verificacao[k][j] = clts.predict(reduced_data.iloc[j, :].values.reshape(1, -1))
-
+        '''
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação dos teste de validação de resultado
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -267,37 +271,42 @@ if __name__ == "__main__":
                     hits[8] += 1
                 if linhaDecisionTreeClassifier[n] == modDTC:
                     hits[9] += 1
-
+                			
+                #print("m = {}\tn = {}\n{}".format(m,n,hits))
             #
             modaKmeans[m] = modKmeans
-            hitsKmeans[m] = (hits[0]*100/300)
+            hitsKmeans[m] = float(hits[0]*100/300)
             modaGMM[m] = modGMM
-            hitsGMM[m] = (hits[1]*100/300)
+            hitsGMM[m] = float(hits[1]*100/300)
             modaLogReg[m] = modLogReg
-            hitsLogReg[m] = (hits[2]*100/300)
+            hitsLogReg[m] = float(hits[2]*100/300)
             modaSGD[m] = modSGD
-            hitsSGD[m] = (hits[3]*100/300)
+            hitsSGD[m] = float(hits[3]*100/300)
             modaKNeigh[m] = modKNeigh
-            hitsKNeigh[m] = (hits[4]*100/300)
+            hitsKNeigh[m] = float(hits[4]*100/300)
             modaNB[m] = modNB
-            hitsNB[m] = (hits[5]*100/300)
+            hitsNB[m] = float(hits[5]*100/300)
             modaRFC[m] = modRFC
-            hitsRFC[m] = (hits[6]*100/300)
+            hitsRFC[m] = float(hits[6]*100/300)
             modaSVC[m] = modSVC
-            hitsSVC[m] = (hits[7]*100/300)
+            hitsSVC[m] = float(hits[7]*100/300)
             modaAda[m] = modAda
-            hitsAda[m] = (hits[8]*100/300)
+            hitsAda[m] = float(hits[8]*100/300)
             modaDTC[m] = modDTC
-            hitsDTC[m] = (hits[9]*100/300)
-
+            hitsDTC[m] = float(hits[9]*100/300)
+            print("m = {}\tn = {}\n{}".format(m,n,hits))
+            hits = []
         modas = pd.DataFrame({"modaKmeans":modaKmeans,"modaGMM":modaGMM,"modaLogReg":modaLogReg,
                              "modaSGD":modaSGD,"modaKNeigh":modaKNeigh,"modaNB":modaNB,"modaRFC":modaRFC,
                              "modaSVC":modaSVC,"modaAda":modaAda,"modaDTC":modaDTC})
         print("moda: \n{}".format(modas))
-
-        hitss = pd.DataFrame({"Accuracy Kmeans(%)": hitsKmeans, "Accuracy GMM(%)": hitsGMM, "Accuracy LogReg(%)": hitsLogReg,
-                              "Accuracy SGD(%)": hitsSGD, "Accuracy KNeigh(%)": hitsKNeigh, "Accuracy NB(%)": hitsNB, "Accuracy RFC(%)": hitsRFC,
-                              "Accuracy SVC(%)": hitsSVC, "Accuracy Ada(%)": hitsAda, "Accuracy DTC(%)": hitsDTC})
+        
+        print("hits:\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(hitsKmeans,hitsGMM,hitsLogReg,hitsSGD,hitsKNeigh,hitsNB,hitsRFC,
+		                                                                    hitsSVC,hitsAda,hitsDTC))
+		
+        hitss = pd.DataFrame({"Accuracy Kmeans(%)":hitsKmeans, "Accuracy GMM(%)":hitsGMM, "Accuracy LogReg(%)":hitsLogReg,
+                              "Accuracy SGD(%)":hitsSGD, "Accuracy KNeigh(%)":hitsKNeigh, "Accuracy NB(%)":hitsNB, "Accuracy RFC(%)":hitsRFC,
+                              "Accuracy SVC(%)":hitsSVC, "Accuracy Ada(%)":hitsAda, "Accuracy DTC(%)":hitsDTC})
         print("Acurácia: \n{}".format(hitss))
 
         #print("hits kmeans test: \n{}".format(hitsKMeans))

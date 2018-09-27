@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-# =-=-=-=-=-=-=-=-
-# Projeto de Conclusão de Curso
-# Autor: Jéssica Barbosa de Souza
-# Descrição : Gerenciamento de todos os métodos aplicados. Contém todas as funções aplicadas.
-# =-=-=-=-=-=-=-=-
-
 import pandas as pd
 from pandas import DataFrame
 import numpy as np
@@ -19,18 +12,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import fbeta_score, accuracy_score
 from sklearn.metrics import silhouette_score
 
-def ApplyPaa(n_paa_segments,seq,df,ckt):
+def ApplyPaa(n_paa_segments,df,ckt):
     circuito = ckt
-    listaFinal = []
     print("Quantidade de segmentos de PAA: {}".format(n_paa_segments))
     paa = PiecewiseAggregateApproximation(n_paa_segments)
     scaler = TimeSeriesScalerMeanVariance()
-    dadosPaa = pd.DataFrame(seq)
+    dadosPaa = df
     for i in range(0, len(df)):
         dataset = scaler.fit_transform(df[i])
-        paa_dataset_inv = paa.inverse_transform(paa.fit_transform(dataset))
-        dadosPaa[i] = paa_dataset_inv[0]
-    listaFinal.append(dadosPaa)
+        dadosPaa[i] = paa.inverse_transform(paa.fit_transform(dataset))[0]
     dadosPaa = dadosPaa.T
 
     fig1_1 = plt.figure()
