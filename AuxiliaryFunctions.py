@@ -23,13 +23,6 @@ def ApplyPaa(n_paa_segments,df,ckt):
         dadosPaa[i] = paa.inverse_transform(paa.fit_transform(dataset))[0]
     dadosPaa = dadosPaa.T
 
-    fig1_1 = plt.figure()
-    plt.plot(dadosPaa)
-    #plt.title("{} com PAA".format(circuito))
-    name = "PAA_{}".format(circuito)
-    try:plt.savefig(name, bbox_inches='tight')
-    except: plt.savefig(name)
-
     return dadosPaa
 
 
@@ -47,14 +40,7 @@ def ApplyPca(df,samples,ckt):
     pca_samples = pca.fit_transform(samples)  # idem, mas nas amostras
 
     reduced_data: DataFrame = pd.DataFrame(reduced_data)
-
-    fig3 = plt.figure()
-    plt.plot(reduced_data)
-    #plt.title("{} com PCA ".format(ckt))
-    name = "PCA_{}".format(ckt)
-    try:plt.savefig(name, bbox_inches='tight')
-    except: plt.savefig(name)
-
+    '''
     fig4 = plt.figure()
     plt.plot(var1)
     #plt.title('Variância acumulada {} '.format(ckt))
@@ -68,7 +54,7 @@ def ApplyPca(df,samples,ckt):
     name = "pca_samples_{}".format(ckt)
     try:plt.savefig(name, bbox_inches='tight')
     except: plt.savefig(name)
-
+    '''
     return(reduced_data,pca_samples)
 
 

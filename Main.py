@@ -16,8 +16,8 @@ if __name__ == "__main__":
     #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
-    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['REDUX.raw']
 
     conjunto = []
@@ -31,11 +31,14 @@ if __name__ == "__main__":
     listaFinal, dados = [], []
     n_ts, sz, d = 1, 100, 1
     matriz = None
+    
 
     for circuito in circuitos:
         print("Circuito: {}".format(circuito))
         csv_name = re.sub('\.', '', circuito)
         csv_name = "{}.csv".format(csv_name)
+        plotTargets = pd.DataFrame({})
+        pltName = ''
         # =-=-=-=-=-=-=-=-
         # início da leitura do arquivo
         # =-=-=-=-=-=-=-=-
@@ -80,13 +83,9 @@ if __name__ == "__main__":
 
         circuito = re.sub('\.', '', circuito)
         circuito = re.sub(' ', '_', circuito)
-        fig = plt.figure()
-        org = plt.plot(dadosOriginais)
-        plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=1.0)
-        #plt.title("Dados pré processados {} ".format(circuito))
-        name = "dadosPreProc_{}".format(circuito)
-        try:plt.savefig(name, bbox_inches='tight')
-        except: plt.savefig(name)
+		
+        pltName = ("Dados Originais {}".format(circuito))
+        plotTargets[pltName] = [dadosOriginais]
 
         # =-=-=-=-=-=-=-=-
         # Aplicação do Paa
@@ -95,7 +94,10 @@ if __name__ == "__main__":
         n_paa_segments = 100
         dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments,dadosOriginais,circuito)
         dataSize = dadosPaa.shape[0]
-
+		
+        pltName = "PAA_{}".format(circuito)
+        #plotTargets[pltName] = dadosPaa
+        plotTargets[pltName] = [dadosPaa]
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # Aplicação do PCA
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -105,15 +107,10 @@ if __name__ == "__main__":
             drop=True)  # amostras para treino
 
         reduced_data, pca_samples = AuxiliaryFunctions.ApplyPca(dadosPaa, samples,circuito)
-
-        fig2 = plt.figure()
-        plt.plot(reduced_data.T, '*')
-        plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=1.0)
-        #plt.title("Dados pós PCA {} ".format(circuito))
-        name = "dadosPosPCA_{}".format(circuito)
-        try:plt.savefig(name, bbox_inches='tight')
-        except: plt.savefig(name)
-
+        pltName = "PCA_{}".format(circuito)
+        #plotTargets[pltName] = reduced_data.T
+        plotTargets[pltName] = [reduced_data.T]
+        
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação do modelo de predição supervisionado
         # modelo: 8 modelos diferentes; em destaque: NaiveBayes
@@ -127,14 +124,12 @@ if __name__ == "__main__":
         from sklearn.linear_model import SGDClassifier
         from sklearn.linear_model import LogisticRegression
 
-        '''
         classifiers = [DecisionTreeClassifier(random_state=20),AdaBoostClassifier(random_state=20),
                        svm.SVC(kernel='linear', C=1, random_state=20),RandomForestClassifier(random_state=20),
                        GaussianNB(),KNeighborsClassifier(),SGDClassifier(random_state=20),
                        LogisticRegression(random_state=20)]
-        '''
         k=0
-        classifiers = [GaussianNB()]
+        #classifiers = [GaussianNB()]
         for clf in classifiers:
             acc_train_results, acc_test_results, \
             fscore_train_results, fscore_test_results, \
@@ -148,16 +143,10 @@ if __name__ == "__main__":
 
             for j in range(dataSize):
                 verificacao[k][j]= clfs.predict(dadosPaa.iloc[j, :].values.reshape(1, -1))
-
-            fig6 = plt.figure()
-
-            plt.plot(verificacao[k].T, '*')
-            #plt.title("{} para {}".format(clf.__class__.__name__,circuito))
-
-            #fig6.show()
-            name = "{}_{}".format(clf.__class__.__name__,circuito,circuito)
-            try:plt.savefig(name, bbox_inches='tight')
-            except: plt.savefig(name)
+            
+            clfName = clf.__class__.__name__
+            #plotTargets[clf.__class__.__name__] = verificacao[k]
+            plotTargets[clfName] = [verificacao[k]]
             k+=1
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -208,6 +197,8 @@ if __name__ == "__main__":
         lines = pd.DataFrame({})
 
         verifica = pd.DataFrame(verificacao)
+        verificaName = ("verifica_{}".format(csv_name))
+        verifica.to_csv(verificaName, index = False, header=False)
 
         for i,clf in enumerate(classifiers):
             modaName = ("moda{}".format(clf.__class__.__name__))
@@ -227,4 +218,23 @@ if __name__ == "__main__":
         hits = hits.apply(f)
         print("acurácia:\n{}".format(hits))
 
+        k = 0
+        conjunto = []
+        conjunto1 = []
+        verificacao = np.zeros((10, dataSize))
+        dadosReduzidos = []
+        dictData = {}
+        df1 = pd.DataFrame()
+        df = pd.DataFrame()
+        dfTime = pd.DataFrame()
+        listaFinal, dados = [], []
 
+        print("plot targets:\n{}".format(plotTargets))
+        for i,plot in enumerate(plotTargets):
+            fig = plt.figure()
+            print("Plot ",i," :",plot,"\n",plotTargets[plot],"\n")
+            plt.plot([plotTargets[plot]], '*')
+            try:plt.savefig(plot, bbox_inches='tight')
+            except: plt.savefig(plot)
+			
+			
