@@ -127,14 +127,14 @@ if __name__ == "__main__":
         from sklearn.linear_model import SGDClassifier
         from sklearn.linear_model import LogisticRegression
 
-
+        '''
         classifiers = [DecisionTreeClassifier(random_state=20),AdaBoostClassifier(random_state=20),
                        svm.SVC(kernel='linear', C=1, random_state=20),RandomForestClassifier(random_state=20),
                        GaussianNB(),KNeighborsClassifier(),SGDClassifier(random_state=20),
                        LogisticRegression(random_state=20)]
-
+        '''
         k=0
-        #classifiers = [GaussianNB()]
+        classifiers = [GaussianNB()]
         for clf in classifiers:
             acc_train_results, acc_test_results, \
             fscore_train_results, fscore_test_results, \
@@ -221,7 +221,7 @@ if __name__ == "__main__":
                 modas[modaName][m] = lines[lineName][m * 300:300 + m * 300].mode()[0]
                 for n in range((m*300),(300+m*300)):
                     if lines[lineName][n] == modas[modaName][m]:
-                        hits[hitName] += 1
+                        hits[hitName][m] += 1
 
         f = lambda x: round(x*100./300.,2)
         hits = hits.apply(f)
