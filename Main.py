@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
             fig6 = plt.figure()
 
-            plt.plot(verificacao[k-1].T, '*')
+            plt.plot(verificacao[k].T, '*')
             #plt.title("{} para {}".format(clf.__class__.__name__,circuito))
 
             #fig6.show()
@@ -201,174 +201,30 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação dos teste de validação de resultado
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        limite = int(dadosPaa.shape[0]/300)
+        limite = int(dataSize/300)
         zeros = np.zeros((20,), dtype=int)
-        modaKmeans = zeros
-        hitsKmeans = zeros
-        modaGMM = zeros
-        hitsGMM = zeros
-        modaLogReg = zeros
-        hitsLogReg = zeros
-        modaSGD = zeros
-        hitsSGD = zeros
-        modaKNeigh = zeros
-        hitsKNeigh = zeros
-        modaNB = zeros
-        hitsNB = zeros
-        modaRFC = zeros
-        hitsRFC = zeros
-        modaSVC = zeros
-        hitsSVC = zeros
-        modaAda = zeros
-        hitsAda = zeros
-        modaDTC = zeros
-        hitsDTC = zeros
+        modas = pd.DataFrame({})
+        hits = pd.DataFrame({})
+        lines = pd.DataFrame({})
 
         verifica = pd.DataFrame(verificacao)
 
-        linhaKMeans = verifica.iloc[k - 1]
-        linhaGMM = verifica.iloc[k - 2]
-        linhaLogisticRegression = verifica.iloc[k - 3]
-        linhaSGDClassifier = verifica.iloc[k - 4]
-        linhaKNeighborsClassifier = verifica.iloc[k - 5]
-        linhaGaussianNB = verifica.iloc[k - 6]
-        linhaRandomForestClassifier = verifica.iloc[k - 7]
-        linhaSVC = verifica.iloc[k - 8]
-        linhaAdaBoostClassifier = verifica.iloc[k - 9]
-        linhaDecisionTreeClassifier = verifica.iloc[k - 10]
+        for i,clf in enumerate(classifiers):
+            modaName = ("moda{}".format(clf.__class__.__name__))
+            hitName = ("accuracy{}".format(clf.__class__.__name__))
+            lineName = ("line{}".format(clf.__class__.__name__))
+            modas[modaName] = zeros
+            hits[hitName] = zeros
+            lines[lineName] = verifica.iloc[i]
 
+            for m in range(0, limite):
+                modas[modaName][m] = lines[lineName][m * 300:300 + m * 300].mode()[0]
+                for n in range((m*300),(300+m*300)):
+                    if lines[lineName][n] == modas[modaName][m]:
+                        hits[hitName] += 1
 
-        for m in range(0,limite):
-            hits = np.zeros((20,), dtype=int)
-            modKmeans = linhaKMeans[m * 300:299 + m * 300].mode()[0]
-            modGMM = linhaGMM[m * 300:299 + m * 300].mode()[0]
-            modLogReg = linhaLogisticRegression[m * 300:299 + m * 300].mode()[0]
-            modSGD = linhaSGDClassifier[m * 300:299 + m * 300].mode()[0]
-            modKNeigh = linhaKNeighborsClassifier[m * 300:299 + m * 300].mode()[0]
-            modNB = linhaGaussianNB[m * 300:299 + m * 300].mode()[0]
-            modRFC = linhaRandomForestClassifier[m * 300:299 + m * 300].mode()[0]
-            modSVC = linhaSVC[m * 300:299 + m * 300].mode()[0]
-            modAda = linhaAdaBoostClassifier[m * 300:299 + m * 300].mode()[0]
-            modDTC = linhaDecisionTreeClassifier[m * 300:299 + m * 300].mode()[0]
-            for n in range((m*300),(299+m*300)):
-                if linhaKMeans[n] == modKmeans:
-                    hits[0] += 1
-                if linhaGMM[n] == modGMM:
-                    hits[1] += 1
-                if linhaLogisticRegression[n] == modLogReg:
-                    hits[2] += 1
-                if linhaSGDClassifier[n] == modSGD:
-                    hits[3] += 1
-                if linhaKNeighborsClassifier[n] == modKNeigh:
-                    hits[4] += 1
-                if linhaGaussianNB[n] == modNB:
-                    hits[5] += 1
-                if linhaRandomForestClassifier[n] == modRFC:
-                    hits[6] += 1
-                if linhaSVC[n] == modSVC:
-                    hits[7] += 1
-                if linhaAdaBoostClassifier[n] == modAda:
-                    hits[8] += 1
-                if linhaDecisionTreeClassifier[n] == modDTC:
-                    hits[9] += 1
-                			
-                #print("m = {}\tn = {}\n{}".format(m,n,hits))
-            #
-            modaKmeans[m] = modKmeans
-            hitsKmeans[m] = float(hits[0]*100/300)
-            modaGMM[m] = modGMM
-            hitsGMM[m] = float(hits[1]*100/300)
-            modaLogReg[m] = modLogReg
-            hitsLogReg[m] = float(hits[2]*100/300)
-            modaSGD[m] = modSGD
-            hitsSGD[m] = float(hits[3]*100/300)
-            modaKNeigh[m] = modKNeigh
-            hitsKNeigh[m] = float(hits[4]*100/300)
-            modaNB[m] = modNB
-            hitsNB[m] = float(hits[5]*100/300)
-            modaRFC[m] = modRFC
-            hitsRFC[m] = float(hits[6]*100/300)
-            modaSVC[m] = modSVC
-            hitsSVC[m] = float(hits[7]*100/300)
-            modaAda[m] = modAda
-            hitsAda[m] = float(hits[8]*100/300)
-            modaDTC[m] = modDTC
-            hitsDTC[m] = float(hits[9]*100/300)
-            print("m = {}\tn = {}\n{}".format(m,n,hits))
-            hits = []
-        modas = pd.DataFrame({"modaKmeans":modaKmeans,"modaGMM":modaGMM,"modaLogReg":modaLogReg,
-                             "modaSGD":modaSGD,"modaKNeigh":modaKNeigh,"modaNB":modaNB,"modaRFC":modaRFC,
-                             "modaSVC":modaSVC,"modaAda":modaAda,"modaDTC":modaDTC})
-        print("moda: \n{}".format(modas))
-        
-        print("hits:\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}".format(hitsKmeans,hitsGMM,hitsLogReg,hitsSGD,hitsKNeigh,hitsNB,hitsRFC,
-		                                                                    hitsSVC,hitsAda,hitsDTC))
-		
-        hitss = pd.DataFrame({"Accuracy Kmeans(%)":hitsKmeans, "Accuracy GMM(%)":hitsGMM, "Accuracy LogReg(%)":hitsLogReg,
-                              "Accuracy SGD(%)":hitsSGD, "Accuracy KNeigh(%)":hitsKNeigh, "Accuracy NB(%)":hitsNB, "Accuracy RFC(%)":hitsRFC,
-                              "Accuracy SVC(%)":hitsSVC, "Accuracy Ada(%)":hitsAda, "Accuracy DTC(%)":hitsDTC})
-        print("Acurácia: \n{}".format(hitss))
-
-        #print("hits kmeans test: \n{}".format(hitsKMeans))
-
-
-        for n in range(dataSize):
-            #for v in range(0,10,1):
-            #    if (modLinha[n]) == moda[v]:
-            #        verifica.iloc[k-1][n] = v+1
-
-            if (linhaKMeans[n]) == modaKmeans[0]:
-                verifica.iloc[k - 1][n] = 1
-            elif (linhaKMeans[n]) == modaKmeans[1]:
-                verifica.iloc[k - 1][n] = 2
-            elif (linhaKMeans[n]) == modaKmeans[2]:
-                verifica.iloc[k - 1][n] = 3
-            elif (linhaKMeans[n]) == modaKmeans[3]:
-                verifica.iloc[k - 1][n] = 4
-            elif (linhaKMeans[n]) == modaKmeans[4]:
-                verifica.iloc[k - 1][n] = 5
-            elif (linhaKMeans[n]) == modaKmeans[5]:
-                verifica.iloc[k - 1][n] = 6
-            elif (linhaKMeans[n]) == modaKmeans[6]:
-                verifica.iloc[k - 1][n] = 7
-            elif (linhaKMeans[n]) == modaKmeans[7]:
-                verifica.iloc[k - 1][n] = 8
-            elif (linhaKMeans[n]) == modaKmeans[8]:
-                verifica.iloc[k - 1][n] = 9
-            elif (linhaKMeans[n]) == modaKmeans[9]:
-                verifica.iloc[k - 1][n] = 10
-            elif (linhaKMeans[n]) == modaKmeans[10]:
-                verifica.iloc[k - 1][n] = 11
-
-        fig7 = plt.figure()
-        plt.plot(verifica.iloc[k-1].T, '*')
-        #plt.title("Classificação do KMeans {} ".format(circuito))
-        name = "KMeans_{}".format(circuito)
-        try:plt.savefig(name, bbox_inches='tight')
-        except: plt.savefig(name)
-
-        fig8 = plt.figure()
-        plt.plot(verifica.iloc[k - 2].T, '*')
-        #plt.title("Classificação do GMM {} ".format(circuito))
-        name = "GMM_{}".format(circuito)
-        try:
-            plt.savefig(name, bbox_inches='tight')
-        except:
-            plt.savefig(name)
-
-        k = 0
-        conjunto = []
-        conjunto1 = []
-        verificacao = np.zeros((10, dataSize))
-        dadosReduzidos = []
-        dictData = {}
-        df1 = pd.DataFrame()
-        df = pd.DataFrame()
-        dfTime = pd.DataFrame()
-        listaFinal, dados = [], []
-
-    print("EOP: pendente relacionar cluster com os componentes do circuito")
-
-
+        f = lambda x: round(x*100./300.,2)
+        hits = hits.apply(f)
+        print("acurácia:\n{}".format(hits))
 
 
