@@ -12,12 +12,12 @@ from sklearn import svm
 
 if __name__ == "__main__":
 
-    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
-    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['REDUX.raw']
 
     conjunto = []
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         print("Circuito: {}".format(circuito))
         csv_name = re.sub('\.', '', circuito)
         csv_name = "{}.csv".format(csv_name)
-        plotTargets = pd.DataFrame({})
+        plotTargets = {}
         pltName = ''
         # =-=-=-=-=-=-=-=-
         # início da leitura do arquivo
@@ -70,8 +70,7 @@ if __name__ == "__main__":
                         i += 1
                 else:
                     i += 1
-			
-            #print("matriz: \n {}".format(matriz))
+
             dadosOriginais = pd.DataFrame(matriz)
             dadosOriginais.to_csv(csv_name, index = False, header=False)
 			
@@ -84,8 +83,8 @@ if __name__ == "__main__":
         circuito = re.sub('\.', '', circuito)
         circuito = re.sub(' ', '_', circuito)
 		
-        pltName = ("Dados Originais {}".format(circuito))
-        plotTargets[pltName] = [dadosOriginais]
+        pltName = ("Dados Originais [{}]".format(circuito))
+        plotTargets[pltName] = dadosOriginais
 
         # =-=-=-=-=-=-=-=-
         # Aplicação do Paa
@@ -97,7 +96,7 @@ if __name__ == "__main__":
 		
         pltName = "PAA_{}".format(circuito)
         #plotTargets[pltName] = dadosPaa
-        plotTargets[pltName] = [dadosPaa]
+        plotTargets[pltName] = dadosPaa
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # Aplicação do PCA
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -109,7 +108,7 @@ if __name__ == "__main__":
         reduced_data, pca_samples = AuxiliaryFunctions.ApplyPca(dadosPaa, samples,circuito)
         pltName = "PCA_{}".format(circuito)
         #plotTargets[pltName] = reduced_data.T
-        plotTargets[pltName] = [reduced_data.T]
+        plotTargets[pltName] = reduced_data.T
         
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação do modelo de predição supervisionado
@@ -146,7 +145,7 @@ if __name__ == "__main__":
             
             clfName = clf.__class__.__name__
             #plotTargets[clf.__class__.__name__] = verificacao[k]
-            plotTargets[clfName] = [verificacao[k]]
+            plotTargets[clfName] = verificacao[k]
             k+=1
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -229,12 +228,10 @@ if __name__ == "__main__":
         dfTime = pd.DataFrame()
         listaFinal, dados = [], []
 
-        print("plot targets:\n{}".format(plotTargets))
-        for i,plot in enumerate(plotTargets):
+        for i,key in enumerate(plotTargets.keys()):
             fig = plt.figure()
-            print("Plot ",i," :",plot,"\n",plotTargets[plot],"\n")
-            plt.plot([plotTargets[plot]], '*')
-            try:plt.savefig(plot, bbox_inches='tight')
-            except: plt.savefig(plot)
-			
-			
+            plt.plot(plotTargets[key], 'o')
+            print("Plotando gráficos de ",key,"...")
+            try:plt.savefig(key, bbox_inches='tight')
+            except: plt.savefig(key)
+
