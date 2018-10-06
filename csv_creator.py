@@ -27,6 +27,8 @@ matriz = None
 #circuito = 'CTSV mc + 4bitPRBS [FALHA].raw'
 circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
                'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+#circuitos = ['REDUX.raw']
+circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
 
 for circuito in circuitos:
     csv_name = re.sub('\.', '', circuito)
@@ -63,7 +65,7 @@ for circuito in circuitos:
 
     dadosOriginais = pd.DataFrame(matriz)
     print("dados originais antes de salvar:\n {}".format(dadosOriginais))
-    dadosOriginais.to_csv(csv_name, index=False, header=False)
+    dadosOriginais.to_csv(csv_name, index=False, header=False, sep=';')
     #dadosOriginais.to_csv(csv_name)
 
     #dadosOriginais = pd.read_csv(csv_name, low_memory=False)

@@ -1,3 +1,5 @@
+import LTSpice_RawRead
+import re
 import pandas as pd
 from pandas import DataFrame
 import numpy as np
@@ -11,6 +13,46 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import fbeta_score, accuracy_score
 from sklearn.metrics import silhouette_score
+
+
+def LTSpiceReader(Circuito):
+    # if __name__ == "__main__":
+    import sys
+    import matplotlib.pyplot as plt
+    if Circuito == 'CTSV mc + 4bitPRBS [FALHA].raw' or Circuito == 'REDUX.raw':
+        Variavel = 'V(bpo)'
+    else:
+        Variavel = 'V(vout)'
+    if len(sys.argv) > 1:
+        raw_filename = sys.argv[1]
+    else:
+        raw_filename = Circuito
+
+    LTR = LTSpice_RawRead.LTSpiceRawRead(raw_filename, traces_to_read=Variavel, loadmem=True)
+    # print(LTR.get_trace_names())
+    fig0 = plt.figure()
+    plt.title("Dados Brutos")
+    for trace in LTR.get_trace_names():
+        print("\nLendo grandeza: {}".format(LTR.get_trace(trace).name))
+        Vo = LTR.get_trace(Variavel)
+        x = LTR.get_trace(0)  # Zero is always the X axis
+        steps = LTR.get_steps()
+        Dados = []
+        time = []
+        for step in range(len(steps)):
+            ValueVar = Vo.get_wave(step)
+            Dados.append(ValueVar)
+            valueTime = x.get_wave(step)
+            time.append(valueTime)
+            plt.plot(valueTime, ValueVar)
+        print("\"{}\" lido.".format(LTR.get_trace(trace).name))
+
+    name = "Brutos_{}".format(Circuito)
+    name = re.sub('\.', '', name)
+    plt.savefig(name, bbox_inches='tight')
+    print("Grandezas lidas.")
+    return (LTR, Dados, time)
+
 
 def ApplyPaa(n_paa_segments,df,ckt):
     circuito = ckt
