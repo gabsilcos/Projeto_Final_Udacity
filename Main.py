@@ -7,31 +7,21 @@ import os
 import LTSpice_RawRead as LTSpice
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.svm import SVC
-from sklearn import svm
+import itertools
 
 if __name__ == "__main__":
 
-    # circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw','Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
 
-    circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
-    # circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['REDUX.raw']
 
-    verificacao = np.zeros((10, 5700))
-    conjunto = []
-    conjunto1 = []
-    dadosReduzidos = []
-    dictData = {}
-    df1 = pd.DataFrame()
-    df = pd.DataFrame()
-    dfTime = pd.DataFrame()
-    listaFinal, dados = [], []
-    n_ts, sz, d = 1, 100, 1
+    saidaCompleta = []
     matriz = None
 
     for circuito in circuitos:
@@ -47,7 +37,7 @@ if __name__ == "__main__":
         if not os.path.isfile(csv_name):
             print("Obtendo dados do arquivo '{}'...".format(circuito))
             saida, dados, time = AuxiliaryFunctions.LTSpiceReader(circuito)
-            conjunto.append(saida)
+            saidaCompleta.append(saida)
             voutIndex = AuxiliaryFunctions.findVout(saida._traces)
 
             # print("dados: \n{}".format(dados))
@@ -83,7 +73,7 @@ if __name__ == "__main__":
         circuito = re.sub('\.', '', circuito)
         circuito = re.sub(' ', '_', circuito)
 
-        pltName = ("Dados Originais [{}]".format(circuito))
+        pltName = ("Dados_Originais")
         plotTargets[pltName] = dadosOriginais
 
         # =-=-=-=-=-=-=-=-
@@ -97,25 +87,15 @@ if __name__ == "__main__":
         pltName = "PAA"
         # plotTargets[pltName] = dadosPaa
         plotTargets[pltName] = dadosPaa
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        # Aplicação do PCA
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        print("\nIniciando a aplicação do PCA")
-        ran = np.random.randint(dadosPaa.shape[0], size=(int(0.1 * dadosPaa.shape[0])))
-        samples = pd.DataFrame(dadosPaa.loc[ran], columns=dadosPaa.keys()).reset_index(
-            drop=True)  # amostras para treino
-
-        reduced_data, pca_samples = AuxiliaryFunctions.ApplyPca(dadosPaa, samples, circuito)
-        pltName = "PCA"
-        # plotTargets[pltName] = reduced_data.T
-        plotTargets[pltName] = reduced_data.T
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação do modelo de predição supervisionado
         # modelo: 8 modelos diferentes; em destaque: NaiveBayes
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         print("\nIniciando a aplicação dos métodos de aprendizagem supervisionados")
-        from sklearn.ensemble import AdaBoostClassifier, AdaBoostRegressor
+        from sklearn.svm import SVC
+        from sklearn import svm
+        from sklearn.ensemble import AdaBoostClassifier
         from sklearn.tree import DecisionTreeClassifier
         from sklearn.ensemble import RandomForestClassifier
         from sklearn.naive_bayes import GaussianNB
@@ -126,75 +106,71 @@ if __name__ == "__main__":
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
                        svm.SVC(kernel='linear', C=1, random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
-                       AdaBoostClassifier(base_estimator=GaussianNB()),
-                       SGDClassifier(random_state=20),
+                       SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
-                       LogisticRegression(random_state=20),AdaBoostRegressor(random_state=20)]
+                       LogisticRegression(random_state=20)]
 
+
+        #classifiers = [GaussianNB(),AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
+        #               RandomForestClassifier(random_state=20)]
         k = 0
-        # classifiers = [GaussianNB()]
+        preds = np.zeros((len(classifiers), dataSize))
+
         for i,clf in enumerate(classifiers):
-            acc_train_results, acc_test_results, \
-            fscore_train_results, fscore_test_results, \
+            clfName = ("[{}]_{}".format(i,clf.__class__.__name__))
+            test_score, cnf_matrix,\
             clfs = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf)
 
-            print("Acurácia teste: {}\t Acurácia treino: {}\nFscore teste: {}\t Fscore treino: {}\n".format(
-                acc_test_results, acc_train_results, fscore_test_results, fscore_train_results))
-            for ct in range(10):
-                rd = np.random.randint(0, dataSize)
-                print("Predição do ponto {}: {}".format(rd, clfs.predict(dadosPaa.iloc[rd, :].values.reshape(1, -1))))
+            cm = 100*cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
 
+            title = '{}_CM_{}'.format(circuito,clfName)
+            cmap = plt.cm.Blues
+
+            fig = plt.figure(figsize=(15, 15))
+            plt.imshow(cm, interpolation='nearest', cmap=cmap)
+            classNames = list(range(1,dataSize//300+1))
+            plt.title(title)
+            plt.colorbar()
+            plt.ylabel('True')
+            plt.xlabel('Predicted')
+            tick_marks = np.arange(len(classNames))
+            plt.xticks(tick_marks, classNames, rotation=45)
+            plt.yticks(tick_marks, classNames)
+
+            fmt = '.2f'
+            thresh = cm.max() / 2.
+            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+                plt.text(j, i, format(cm[i, j],fmt),
+                         horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
+            #plt.show()
+            plt.savefig("{}.png".format(title), bbox_inches='tight')
+
+            f = lambda x: round(x, 2)
+            cm = pd.DataFrame(cm).apply(f)
+            print("Score de teste: {}\nConfusion Matrix:\n{}\n".format(test_score, cm))
             for j in range(dataSize):
-                verificacao[k][j] = clfs.predict(dadosPaa.iloc[j, :].values.reshape(1, -1))
+                preds[k][j] = clfs.predict(dadosPaa.iloc[j, :].values.reshape(1, -1))
 
-            clfName = clf.__class__.__name__
             # plotTargets[clf.__class__.__name__] = verificacao[k]
-            plotTargets[clfName] = verificacao[k]
+            plotTargets[clfName] = preds[k]
             k += 1
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação dos teste de validação de resultado
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        predTable = pd.DataFrame(preds)
         limite = int(dataSize / 300)
-        zeros = np.zeros((20,), dtype=int)
+        zeros = np.zeros((limite,), dtype=int)
         modas = pd.DataFrame({})
         hits = pd.DataFrame({})
         lines = pd.DataFrame({})
 
-        verifica = pd.DataFrame(verificacao)
-        verificaName = ("verifica_{}".format(csv_name))
-        verifica.to_csv(verificaName, index=False, header=False, sep=';')
-
-        for i, clf in enumerate(classifiers):
-            modaName = ("[{}] moda{}".format(i,clf.__class__.__name__))
-            hitName = ("[{}] accuracy{}".format(i,clf.__class__.__name__))
-            lineName = ("[{}] line{}".format(i,clf.__class__.__name__))
-            modas[modaName] = zeros
-            hits[hitName] = zeros
-            lines[lineName] = verifica.iloc[i]
-
-            for m in range(0, limite):
-                modas[modaName][m] = lines[lineName][m * 300:300 + m * 300].mode()[0]
-                for n in range((m * 300), (300 + m * 300)):
-                    if lines[lineName][n] == modas[modaName][m]:
-                        hits[hitName][m] += 1
-
-        f = lambda x: round(x * 100. / 300., 2)
-        hits = hits.apply(f)
-        print("acurácia:\n{}".format(hits))
-
-        conjunto = []
-        conjunto1 = []
-        verificacao = np.zeros((10, dataSize))
-        dadosReduzidos = []
-        dictData = {}
-        df1 = pd.DataFrame()
-        df = pd.DataFrame()
-        dfTime = pd.DataFrame()
-        listaFinal, dados = [], []
+        fileName = ("verifica_{}".format(csv_name))
+        predTable.to_csv(fileName, index=False, header=False, sep=';')
 
         for i, key in enumerate(plotTargets.keys()):
-            fig = plt.figure()
+            fig = plt.figure(figsize=(15, 15))
             plt.plot(plotTargets[key], 'o')
             print("Plotando gráficos de ",key, "...")
             try:
