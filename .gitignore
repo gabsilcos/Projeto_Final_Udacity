@@ -18,3 +18,5 @@ Biquad Highpass Filter mc + 4bitPRBS [FALHA].log
 Biquad Highpass Filter mc + 4bitPRBS [FALHA].net
 verifica_Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 02sraw.csv
 verifica_Sallen Key mc + 4bitPRBS [FALHA]raw.csv
+dead_file/main_verificacao.py
+dead_file/Main_workspace.py

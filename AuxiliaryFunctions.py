@@ -74,7 +74,8 @@ def ApplyPaa(n_paa_segments,df):
 
 def SupervisedPreds(df,clf,parameters,optimization):
     '''
-    Aplica um único método de cada vez.
+    Aplica um único método de cada vez, ou aplica a otimização de parâmetros no método selecionado.
+
     :param df: dataframe com dados em que se deseja aplicar o aprendizado
     :param clf: classifacador que se deseja usar no aprendizado
     :param parameters: parâmetros para a aplicação do GridSearchCV
@@ -91,7 +92,7 @@ def SupervisedPreds(df,clf,parameters,optimization):
 
     classi = pd.DataFrame(classificacao)
     X_train, X_test, y_train, y_test = train_test_split(df, classi, test_size=0.25, random_state=0)
-    print("Total training subjects: {}\nTotal testing subjects: {}".format(len(X_train),len(X_test)))
+    print("Elementos de treino: {}\nElementos de teste: {}".format(len(X_train),len(X_test)))
     '''
     classifiers = [DecisionTreeClassifier(random_state=20),AdaBoostClassifier(random_state=20),
                    svm.SVC(kernel='linear', C=1, random_state=20),RandomForestClassifier(random_state=20),

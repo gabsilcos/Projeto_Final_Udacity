@@ -12,21 +12,21 @@ from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
 
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) #raiz do projeto
-    CSV_DIR = "{}\CSV\\".format(ROOT_DIR) #dump de CSVs
-    IMG_DIR = "{}\IMG\\".format(ROOT_DIR) #dump de imagens
-	
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # raiz do projeto
+    CSV_DIR = "{}\CSV\\".format(ROOT_DIR)  # dump de CSVs
+    IMG_DIR = "{}\IMG\\".format(ROOT_DIR)  # dump de imagens
+
     '''
     Descomentar o circuito ou grupo de circuitos que será observado
     '''
-	
-    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
-    #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
-    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
-    #circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
+    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+
+    # circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    # circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
+    # circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
     saidaCompleta = []
     matriz = None
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         # início da leitura do arquivo
         # =-=-=-=-=-=-=-=-
 
-        if not os.path.isfile("{}{}".format(CSV_DIR,csv_name)):
+        if not os.path.isfile("{}{}".format(CSV_DIR, csv_name)):
             print("Obtendo dados do arquivo '{}'...".format(circuito))
             saida, dados, time = AuxiliaryFunctions.LTSpiceReader(circuito)
             saidaCompleta.append(saida)
@@ -68,11 +68,11 @@ if __name__ == "__main__":
                     i += 1
 
             dadosOriginais = pd.DataFrame(matriz)
-            dadosOriginais.to_csv("{}{}".format(CSV_DIR,csv_name), index=False, header=False)
+            dadosOriginais.to_csv("{}{}".format(CSV_DIR, csv_name), index=False, header=False)
 
         else:
             print("Obtendo dados do arquivo '{}' .".format(csv_name))
-            dadosOriginais = pd.read_csv("{}{}".format(CSV_DIR,csv_name), header=None, low_memory=False)
+            dadosOriginais = pd.read_csv("{}{}".format(CSV_DIR, csv_name), header=None, low_memory=False)
 
         print("Leitura do arquivo terminada.\nSalvando características do circuito...")
 
@@ -107,27 +107,26 @@ if __name__ == "__main__":
         from sklearn.neighbors import KNeighborsClassifier
         from sklearn.linear_model import SGDClassifier
         from sklearn.linear_model import LogisticRegression
-        
+
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
                        svm.SVC(kernel='linear', C=1, random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
                        SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
                        LogisticRegression(random_state=20)]
-        
 
-        #classifiers = [GaussianNB()]#,AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
+        # classifiers = [GaussianNB()]#,AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
         #               RandomForestClassifier(random_state=20)]
-        #classifiers = [AdaBoostClassifier(random_state=20)]
+        # classifiers = [AdaBoostClassifier(random_state=20)]
         k = 0
         preds = np.zeros((len(classifiers), dataSize))
 
-        for i,clf in enumerate(classifiers):
-            clfName = ("[{}]_{}".format(i,clf.__class__.__name__))
-            test_score, cnf_matrix,\
-            clfs = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf,[],0)
+        for i, clf in enumerate(classifiers):
+            clfName = ("[{}]_{}".format(i, clf.__class__.__name__))
+            test_score, cnf_matrix, \
+            clfs = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, [], 0)
 
-            cm = AuxiliaryFunctions.confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize)
+            cm = AuxiliaryFunctions.confusionMatrixPlot(cnf_matrix, circuito, clfName, dataSize)
             print("Score de teste: {}\nConfusion Matrix:\n{}\n".format(test_score, cm))
 
             for j in range(dataSize):
@@ -142,7 +141,7 @@ if __name__ == "__main__":
         clf = AdaBoostClassifier(random_state=20)
         print("Aplicando tuning do modelo...")
         parameters = {'learning_rate': [0.1, 0.5, 1.],
-                      'random_state':[20,40,120,360]}
+                      'random_state': [20, 40, 120, 360]}
 
         results = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, parameters, 1)
 
@@ -162,14 +161,14 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         predTable = pd.DataFrame(preds)
 
-        fileName = ("{}verifica_{}".format(CSV_DIR,csv_name))
+        fileName = ("{}verifica_{}".format(CSV_DIR, csv_name))
         predTable.to_csv(fileName, index=False, header=False, sep=';')
 
         for i, key in enumerate(plotTargets.keys()):
             fig = plt.figure(figsize=(15, 15))
             plt.plot(plotTargets[key], 'o')
-            print("Plotando gráficos de ",key, "...")
+            print("Plotando gráficos de ", key, "...")
             try:
-                plt.savefig("{}{}_{}".format(IMG_DIR,circuito, key), bbox_inches='tight')
+                plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight')
             except:
                 plt.savefig(key)
