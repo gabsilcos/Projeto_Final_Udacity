@@ -7,25 +7,26 @@ import os
 import LTSpice_RawRead as LTSpice
 import matplotlib.pyplot as plt
 import numpy as np
-import itertools
+from sklearn.grid_search import GridSearchCV
+from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
 
-    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw','Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
 
     #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
-    # circuitos = ['REDUX.raw']
+    #circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
     saidaCompleta = []
     matriz = None
 
     for circuito in circuitos:
-        print("Circuito: {}".format(circuito))
+        print("\n\nCircuito: {}".format(circuito))
         csv_name = re.sub('\.', '', circuito)
         csv_name = "{}.csv".format(csv_name)
         plotTargets = {}
@@ -81,11 +82,12 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-
         print("\nIniciando a aplicação do PAA")
         n_paa_segments = 100
-        dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments, dadosOriginais, circuito)
+        dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments, dadosOriginais)
         dataSize = dadosPaa.shape[0]
 
+        dadosPaa.to_csv("a.csv",index=False, header=False,sep=';')
+
         pltName = "PAA"
-        # plotTargets[pltName] = dadosPaa
         plotTargets[pltName] = dadosPaa
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -102,69 +104,60 @@ if __name__ == "__main__":
         from sklearn.neighbors import KNeighborsClassifier
         from sklearn.linear_model import SGDClassifier
         from sklearn.linear_model import LogisticRegression
-
+        '''
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
                        svm.SVC(kernel='linear', C=1, random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
                        SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
                        LogisticRegression(random_state=20)]
+        '''
 
-
-        #classifiers = [GaussianNB(),AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
+        #classifiers = [GaussianNB()]#,AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
         #               RandomForestClassifier(random_state=20)]
+        classifiers = [AdaBoostClassifier(random_state=20)]
         k = 0
         preds = np.zeros((len(classifiers), dataSize))
 
         for i,clf in enumerate(classifiers):
             clfName = ("[{}]_{}".format(i,clf.__class__.__name__))
             test_score, cnf_matrix,\
-            clfs = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf)
+            clfs = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf,[],0)
 
-            cm = 100*cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
-
-            title = '{}_CM_{}'.format(circuito,clfName)
-            cmap = plt.cm.Blues
-
-            fig = plt.figure(figsize=(15, 15))
-            plt.imshow(cm, interpolation='nearest', cmap=cmap)
-            classNames = list(range(1,dataSize//300+1))
-            plt.title(title)
-            plt.colorbar()
-            plt.ylabel('True')
-            plt.xlabel('Predicted')
-            tick_marks = np.arange(len(classNames))
-            plt.xticks(tick_marks, classNames, rotation=45)
-            plt.yticks(tick_marks, classNames)
-
-            fmt = '.2f'
-            thresh = cm.max() / 2.
-            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-                plt.text(j, i, format(cm[i, j],fmt),
-                         horizontalalignment="center",
-                         color="white" if cm[i, j] > thresh else "black")
-            #plt.show()
-            plt.savefig("{}.png".format(title), bbox_inches='tight')
-
-            f = lambda x: round(x, 2)
-            cm = pd.DataFrame(cm).apply(f)
+            cm = AuxiliaryFunctions.confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize)
             print("Score de teste: {}\nConfusion Matrix:\n{}\n".format(test_score, cm))
+
             for j in range(dataSize):
                 preds[k][j] = clfs.predict(dadosPaa.iloc[j, :].values.reshape(1, -1))
 
-            # plotTargets[clf.__class__.__name__] = verificacao[k]
             plotTargets[clfName] = preds[k]
             k += 1
+
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # OTIMIZAÇÃO DE RESULTADOS
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        clf = AdaBoostClassifier(random_state=20)
+        print("Aplicando tuning do modelo...")
+        parameters = {'learning_rate': [0.1, 0.5, 1.],
+                      'random_state':[20,40,120,360]}
+
+        results = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, parameters, 1)
+
+        print("Best Score: ", results['best_score'])
+        print("Best Parameters: ", results['best_params'])
+        print("Unoptimized model\n------")
+        print("F-score on testing data: {:.4f}".format(results['test_score']))
+        print("\nOptimized Model\n------")
+        print("Final F-score on the testing data: {:.4f}".format(results['final_test_score']))
+        adjusted_predictions = results['best_clf'].predict(dadosOriginais.T)
+        plotTargets["PREDIÇÕES FINAIS"] = adjusted_predictions.T
+
+        print("Confusion Matrix:\n{}\n".format(results['cnf_matrix']))
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação dos teste de validação de resultado
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         predTable = pd.DataFrame(preds)
-        limite = int(dataSize / 300)
-        zeros = np.zeros((limite,), dtype=int)
-        modas = pd.DataFrame({})
-        hits = pd.DataFrame({})
-        lines = pd.DataFrame({})
 
         fileName = ("verifica_{}".format(csv_name))
         predTable.to_csv(fileName, index=False, header=False, sep=';')

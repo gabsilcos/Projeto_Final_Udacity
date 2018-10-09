@@ -1,18 +1,18 @@
 import LTSpice_RawRead
 import re
 import pandas as pd
-from pandas import DataFrame
 import numpy as np
 import matplotlib.pyplot as plt
-import collections
+import itertools
 
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.piecewise import PiecewiseAggregateApproximation
-from sklearn.decomposition import PCA
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import fbeta_score, accuracy_score
-from sklearn.metrics import silhouette_score,r2_score,confusion_matrix
+from sklearn.metrics import fbeta_score
+from sklearn.metrics import r2_score,confusion_matrix
+from sklearn.grid_search import GridSearchCV
+from sklearn.metrics import make_scorer
 
 
 
@@ -55,30 +55,35 @@ def LTSpiceReader(Circuito):
     return (LTR, Dados, time)
 
 
-def ApplyPaa(n_paa_segments,df,ckt):
-    circuito = ckt
+def ApplyPaa(n_paa_segments,df):
+    df = df.values.T.tolist()
+    scaler = TimeSeriesScalerMeanVariance(mu=0., std=1.)
+    dadosPaa = scaler.fit_transform(df)
     print("Quantidade de segmentos de PAA: {}".format(n_paa_segments))
     paa = PiecewiseAggregateApproximation(n_paa_segments)
-    scaler = TimeSeriesScalerMeanVariance()
-    dadosPaa = df
-    for i in range(0, len(df)):
-        dataset = scaler.fit_transform(df[i])
-        dadosPaa[i] = paa.inverse_transform(paa.fit_transform(dataset))[0]
-    dadosPaa = dadosPaa.T
+    dadosPaa = paa.inverse_transform(paa.fit_transform(dadosPaa))
 
-    return dadosPaa
+    df = pd.DataFrame()
+
+    for i in range(len(dadosPaa.T)):
+        for j in range(len(dadosPaa.T[0])):
+            df[j] = dadosPaa.T[i][j]
+
+    return df
 
 
-def SupervisedPreds(df,clf):
+def SupervisedPreds(df,clf,parameters,optimization):
     '''
     Aplica um único método de cada vez.
     :param df: dataframe com dados em que se deseja aplicar o aprendizado
     :param clf: classifacador que se deseja usar no aprendizado
+    :param parameters: parâmetros para a aplicação do GridSearchCV
+    :param optimization: flag sinalizando se é uma operação de otimização de algoritmos
     :return: acurácias de treino e teste, f-beta scores de treino e teste e o objeto classificador
     '''
 
     import warnings
-    warnings.filterwarnings("ignore")   #pra não cagar o meu log :D
+    warnings.filterwarnings("ignore")
 
     classificacao = []
     for i in range(0, int(df.shape[0] / 300)):  # gambiarra para confirmação binária de acerto
@@ -95,21 +100,36 @@ def SupervisedPreds(df,clf):
                    GaussianNB(),KNeighborsClassifier(),SGDClassifier(random_state=20),
                    LogisticRegression(random_state=20)]
     '''
-    print("\nClassificador: {}".format(clf.__class__.__name__))
-    clf = clf.fit(X_train, y_train)
-    clf_test_predictions = clf.predict(X_test)
-    #clf_train_predictions = clf.predict(X_train)
-    cnf_matrix = confusion_matrix(y_test, clf_test_predictions)
+    clfName = clf.__class__.__name__
+    if optimization == 0:
+        print("\nClassificador: {}".format(clfName))
+        try:
+            clf = clf.fit(X_train, y_train)
+        except:
+            y_train = np.ravel(y_train)
+            clf = clf.fit(X_train, y_train)
 
-    try:
-        #fscore_train_results = fbeta_score(y_train, clf_train_predictions, beta=0.5, average='macro')
-        fscore_test_results = fbeta_score(y_test, clf_test_predictions, beta=0.5, average='macro')
-        #return(fscore_train_results,fscore_test_results,cnf_matrix,clf)
-        return(fscore_test_results,cnf_matrix,clf)
-    except:
-        #acc_train_results = r2_score(y_train, clf_train_predictions)
-        acc_test_results = r2_score(y_test, clf_test_predictions)
-        return (acc_test_results,cnf_matrix,clf)
+        test_predictions = clf.predict(X_test)
+        cnf_matrix = confusion_matrix(y_test, test_predictions)
+
+        fscore = fbeta_score(y_test, test_predictions, beta=0.5, average='macro')
+        return(fscore,cnf_matrix,clf)
+
+    else:
+        results = {}
+        scorer = make_scorer(fbeta_score, beta=0.5, average='macro')
+        grid_obj = GridSearchCV(clf, parameters, scorer)
+        y_train = np.ravel(y_train)
+        grid_fit = grid_obj.fit(X_train, y_train)
+        results['best_clf'] = grid_fit.best_estimator_
+        results['predictions'] = clf.fit(X_train, y_train).predict(X_test)
+        results['best_predictions'] = results['best_clf'].predict(X_test)
+        results['best_score'] = grid_fit.best_score_
+        results['best_params'] = grid_fit.best_params_
+        results['cnf_matrix'] = confusion_matrix(y_test, results['best_predictions'])
+        results['test_score'] = fbeta_score(y_test, results['predictions'], beta=0.5, average='macro')
+        results['final_test_score'] = fbeta_score(y_test, results['best_predictions'], beta=0.5, average='macro')
+        return results
 
 
 def findVout(traces):
@@ -119,3 +139,34 @@ def findVout(traces):
             voutIndex = i
 
     return voutIndex
+
+
+def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
+    cm = 100 * cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
+
+    title = '{}_CM_{}'.format(circuito, clfName)
+    cmap = plt.cm.Blues
+
+    fig = plt.figure(figsize=(15, 15))
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    classNames = list(range(1, dataSize // 300 + 1))
+    plt.title(title)
+    plt.colorbar()
+    plt.ylabel('True')
+    plt.xlabel('Predicted')
+    tick_marks = np.arange(len(classNames))
+    plt.xticks(tick_marks, classNames, rotation=45)
+    plt.yticks(tick_marks, classNames)
+
+    fmt = '.2f'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+    plt.savefig("{}.png".format(title), bbox_inches='tight')
+
+    f = lambda x: round(x, 2)
+    cm = pd.DataFrame(cm).apply(f)
+
+    return cm
