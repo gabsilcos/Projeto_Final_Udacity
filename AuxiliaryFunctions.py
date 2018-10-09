@@ -1,5 +1,6 @@
 import LTSpice_RawRead
 import re
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,10 +15,10 @@ from sklearn.metrics import r2_score,confusion_matrix
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import make_scorer
 
-
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) #raiz do projeto
+IMG_DIR = "{}\IMG\\".format(ROOT_DIR) #dump de imagens
 
 def LTSpiceReader(Circuito):
-    # if __name__ == "__main__":
     import sys
     import matplotlib.pyplot as plt
     if Circuito == 'CTSV mc + 4bitPRBS [FALHA].raw' or Circuito == 'REDUX.raw':
@@ -30,13 +31,12 @@ def LTSpiceReader(Circuito):
         raw_filename = Circuito
 
     LTR = LTSpice_RawRead.LTSpiceRawRead(raw_filename, traces_to_read=Variavel, loadmem=True)
-    # print(LTR.get_trace_names())
     fig0 = plt.figure()
     plt.title("Dados Brutos")
     for trace in LTR.get_trace_names():
         print("\nLendo grandeza: {}".format(LTR.get_trace(trace).name))
         Vo = LTR.get_trace(Variavel)
-        x = LTR.get_trace(0)  # Zero is always the X axis
+        x = LTR.get_trace(0)  # Zero é sempre o eixo X
         steps = LTR.get_steps()
         Dados = []
         time = []
@@ -50,7 +50,7 @@ def LTSpiceReader(Circuito):
 
     name = "Brutos_{}".format(Circuito)
     name = re.sub('\.', '', name)
-    plt.savefig(name, bbox_inches='tight')
+    plt.savefig("{}{}".format(IMG_DIR,name), bbox_inches='tight')
     print("Grandezas lidas.")
     return (LTR, Dados, time)
 
@@ -86,14 +86,12 @@ def SupervisedPreds(df,clf,parameters,optimization):
     warnings.filterwarnings("ignore")
 
     classificacao = []
-    for i in range(0, int(df.shape[0] / 300)):  # gambiarra para confirmação binária de acerto
+    for i in range(0, int(df.shape[0] / 300)):  # gabarito da simulação
         classificacao += [i + 1] * 300
 
     classi = pd.DataFrame(classificacao)
     X_train, X_test, y_train, y_test = train_test_split(df, classi, test_size=0.25, random_state=0)
     print("Total training subjects: {}\nTotal testing subjects: {}".format(len(X_train),len(X_test)))
-    #for i in range(len(X_test)):
-    #    outlier = log_data[~((log_data[feature] >= minVal) & (log_data[feature] <= maxVal))]
     '''
     classifiers = [DecisionTreeClassifier(random_state=20),AdaBoostClassifier(random_state=20),
                    svm.SVC(kernel='linear', C=1, random_state=20),RandomForestClassifier(random_state=20),
@@ -152,8 +150,8 @@ def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
     classNames = list(range(1, dataSize // 300 + 1))
     plt.title(title)
     plt.colorbar()
-    plt.ylabel('True')
-    plt.xlabel('Predicted')
+    plt.ylabel('Real')
+    plt.xlabel('Predito')
     tick_marks = np.arange(len(classNames))
     plt.xticks(tick_marks, classNames, rotation=45)
     plt.yticks(tick_marks, classNames)
@@ -164,7 +162,7 @@ def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
         plt.text(j, i, format(cm[i, j], fmt),
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
-    plt.savefig("{}.png".format(title), bbox_inches='tight')
+    plt.savefig("{}{}.png".format(IMG_DIR,title), bbox_inches='tight')
 
     f = lambda x: round(x, 2)
     cm = pd.DataFrame(cm).apply(f)

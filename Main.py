@@ -12,13 +12,19 @@ from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
 
-    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
-
-    # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw','Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) #raiz do projeto
+    CSV_DIR = "{}\CSV\\".format(ROOT_DIR) #dump de CSVs
+    IMG_DIR = "{}\IMG\\".format(ROOT_DIR) #dump de imagens
+	
+    '''
+    Descomentar o circuito ou grupo de circuitos que será observado
+    '''
+	
+    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
@@ -35,13 +41,12 @@ if __name__ == "__main__":
         # início da leitura do arquivo
         # =-=-=-=-=-=-=-=-
 
-        if not os.path.isfile(csv_name):
+        if not os.path.isfile("{}{}".format(CSV_DIR,csv_name)):
             print("Obtendo dados do arquivo '{}'...".format(circuito))
             saida, dados, time = AuxiliaryFunctions.LTSpiceReader(circuito)
             saidaCompleta.append(saida)
             voutIndex = AuxiliaryFunctions.findVout(saida._traces)
 
-            # print("dados: \n{}".format(dados))
             MaiorIndice = 0
             for dado in dados:
                 if len(dado) > MaiorIndice:
@@ -63,11 +68,11 @@ if __name__ == "__main__":
                     i += 1
 
             dadosOriginais = pd.DataFrame(matriz)
-            dadosOriginais.to_csv(csv_name, index=False, header=False)
+            dadosOriginais.to_csv("{}{}".format(CSV_DIR,csv_name), index=False, header=False)
 
         else:
             print("Obtendo dados do arquivo '{}' .".format(csv_name))
-            dadosOriginais = pd.read_csv(csv_name, header=None, low_memory=False)
+            dadosOriginais = pd.read_csv("{}{}".format(CSV_DIR,csv_name), header=None, low_memory=False)
 
         print("Leitura do arquivo terminada.\nSalvando características do circuito...")
 
@@ -85,14 +90,12 @@ if __name__ == "__main__":
         dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments, dadosOriginais)
         dataSize = dadosPaa.shape[0]
 
-        dadosPaa.to_csv("a.csv",index=False, header=False,sep=';')
-
         pltName = "PAA"
         plotTargets[pltName] = dadosPaa
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # implementação do modelo de predição supervisionado
-        # modelo: 8 modelos diferentes; em destaque: NaiveBayes
+        # modelo: diversos
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         print("\nIniciando a aplicação dos métodos de aprendizagem supervisionados")
         from sklearn.svm import SVC
@@ -143,14 +146,14 @@ if __name__ == "__main__":
 
         results = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, parameters, 1)
 
-        print("Best Score: ", results['best_score'])
-        print("Best Parameters: ", results['best_params'])
-        print("Unoptimized model\n------")
-        print("F-score on testing data: {:.4f}".format(results['test_score']))
-        print("\nOptimized Model\n------")
-        print("Final F-score on the testing data: {:.4f}".format(results['final_test_score']))
+        print("Melhor Score: ", results['best_score'])
+        print("Melhores Parâmetros: ", results['best_params'])
+        print("\n------\nModelo não-otimizado\n------")
+        print("F-score dos dados de teste: {:.4f}".format(results['test_score']))
+        print("\n------\nModelo otimizado\n------")
+        print("F-score dos dados de teste: {:.4f}".format(results['final_test_score']))
         adjusted_predictions = results['best_clf'].predict(dadosOriginais.T)
-        plotTargets["PREDIÇÕES FINAIS"] = adjusted_predictions.T
+        plotTargets["PREDICOES_FINAIS"] = adjusted_predictions.T
 
         print("Confusion Matrix:\n{}\n".format(results['cnf_matrix']))
 
@@ -159,7 +162,7 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         predTable = pd.DataFrame(preds)
 
-        fileName = ("verifica_{}".format(csv_name))
+        fileName = ("{}verifica_{}".format(CSV_DIR,csv_name))
         predTable.to_csv(fileName, index=False, header=False, sep=';')
 
         for i, key in enumerate(plotTargets.keys()):
@@ -167,6 +170,6 @@ if __name__ == "__main__":
             plt.plot(plotTargets[key], 'o')
             print("Plotando gráficos de ",key, "...")
             try:
-                plt.savefig("{}_{}".format(circuito, key), bbox_inches='tight')
+                plt.savefig("{}{}_{}".format(IMG_DIR,circuito, key), bbox_inches='tight')
             except:
                 plt.savefig(key)
