@@ -12,13 +12,13 @@ from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
 
-    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw','Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
 
     #circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     #circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
@@ -104,18 +104,18 @@ if __name__ == "__main__":
         from sklearn.neighbors import KNeighborsClassifier
         from sklearn.linear_model import SGDClassifier
         from sklearn.linear_model import LogisticRegression
-        '''
+        
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
                        svm.SVC(kernel='linear', C=1, random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
                        SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
                        LogisticRegression(random_state=20)]
-        '''
+        
 
         #classifiers = [GaussianNB()]#,AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
         #               RandomForestClassifier(random_state=20)]
-        classifiers = [AdaBoostClassifier(random_state=20)]
+        #classifiers = [AdaBoostClassifier(random_state=20)]
         k = 0
         preds = np.zeros((len(classifiers), dataSize))
 
