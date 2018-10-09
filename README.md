@@ -7,7 +7,7 @@ Ressalto que não é necessário realizar uma nova simulação dos mesmos circui
 
 ## Agradecimentos e Disclaimer
 A realização deste projeto só foi possível devido ao trabalho do Engenheiro Sênior de Hardware Nuno Brum no desenvolvimento de ferramentas de tratamento de dados do LTSpice, especialmente do "LTSpiceRaw_Reader.py" que foi usado para a coleta dos dados de entrada.
-Não possuo qualquer autoria sobre o LTSpiceRaw_Reader, e o PySpicer toolchain do quela é parte integrante se encontra no repositório original onde são fornecidas maiores informações.
+Não possuo qualquer autoria sobre o LTSpiceRaw_Reader, e o PySpicer toolchain do qual é parte integrante se encontra no repositório original onde são fornecidas maiores informações:
 * https://github.com/nunobrum/PyLTSpice
 
 ## Dados de entrada
