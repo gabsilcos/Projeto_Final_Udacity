@@ -1,4 +1,4 @@
-Circuit: * Z:\Documentos\GitHub\ProjetoBB\Projeto-Final\CTSV mc + 4bitPRBS [FALHA].asc
+Circuit: * Z:\Documentos\GitHub\Projeto_Final_Udacity\CTSV mc + 4bitPRBS [FALHA].asc
 
 WARNING: Less than two connections to node N008.  This node is used by A1.
 Direct Newton iteration failed to find .op point.  (Use ".option noopiter" to skip.)
@@ -5722,21 +5722,20 @@ Gmin stepping succeeded in finding the operating point.
 .step run=5699
 .step run=5700
 
-Date: Thu Aug 09 10:56:32 2018
-Total elapsed time: 1469.366 seconds.
+Date: Tue Oct 09 22:41:17 2018
+Total elapsed time: 1774.705 seconds.
 
 tnom = 27
 temp = 27
-method = modified trap
-totiter = 3506
-traniter = 3156
-tranpoints = 1555
-accept = 1433
-rejected = 122
+method = Gear
+totiter = 4426
+traniter = 4076
+tranpoints = 1997
+accept = 1792
+rejected = 205
 matrix size = 38
 fillins = 59
 solver = Normal
-Matrix Compiler1: 5.58 KB object code size  1.0/0.5/[0.4]
-Matrix Compiler2: 4.25 KB object code size  0.5/0.7/[0.3]
-
+Matrix Compiler1: off
+Matrix Compiler2: off
 

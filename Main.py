@@ -20,11 +20,11 @@ if __name__ == "__main__":
     Descomentar o circuito ou grupo de circuitos que será observado
     '''
 
-    circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-               'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
+    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
 
     # circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
@@ -166,9 +166,11 @@ if __name__ == "__main__":
 
         for i, key in enumerate(plotTargets.keys()):
             fig = plt.figure(figsize=(15, 15))
-            plt.plot(plotTargets[key], 'o')
+            plt.plot(plotTargets[key],",")
+            plt.xlabel("Passo de simulação")
+            plt.ylabel("Grupo de Falha")
             print("Plotando gráficos de ", key, "...")
             try:
-                plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight')
+                plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight',transparent = True)
             except:
                 plt.savefig(key)
