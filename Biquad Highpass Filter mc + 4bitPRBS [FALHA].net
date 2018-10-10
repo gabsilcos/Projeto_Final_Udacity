@@ -1,4 +1,4 @@
-* Z:\Documentos\GitHub\ProjetoBB\Projeto-Final\Biquad Highpass Filter mc + 4bitPRBS [FALHA].asc
+* Z:\Documentos\GitHub\Projeto_Final_Udacity\Biquad Highpass Filter mc + 4bitPRBS [FALHA].asc
 R3 N001 Q1 {falhaR3(mc(2.325k,0.125),mc(10.075k,0.125),mc(6.2k,0.01))}
 C2 VB VC {falhaC2(mc(1.875n,0.125),mc(8.125n,0.125),mc(5n,0.01))}
 V1 N012 0 -15
