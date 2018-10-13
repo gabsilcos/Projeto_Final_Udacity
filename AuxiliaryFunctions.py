@@ -47,16 +47,17 @@ def LTSpiceReader(Circuito):
             time.append(valueTime)
             plt.plot(valueTime, ValueVar)
         print("\"{}\" lido.".format(LTR.get_trace(trace).name))
-
+    '''
     print("Dados brutos:\n",Dados[0:10],"\n")  # verify data structure by looking at the five first rows
     print("Passos de tempo:\n",time[0:10],"\n")  # verify data structure by looking at the five first rows
     print("Dados do LTR:\n",LTR[0:10],"\n")  # verify data structure by looking at the five first rows
+    '''
 
     name = "Brutos_{}".format(Circuito)
     name = re.sub('\.', '', name)
-    plt.savefig("{}{}".format(IMG_DIR,name), bbox_inches='tight')
     plt.xlabel("Tempo")
     plt.ylabel("Amplitute")
+    plt.savefig("{}{}".format(IMG_DIR,name), bbox_inches='tight')
     print("Grandezas lidas.")
     return (LTR, Dados, time)
 
