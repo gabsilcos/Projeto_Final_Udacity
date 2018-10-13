@@ -112,13 +112,14 @@ if __name__ == "__main__":
         from sklearn.neighbors import KNeighborsClassifier
         from sklearn.linear_model import SGDClassifier
         from sklearn.linear_model import LogisticRegression
+        from sklearn.ensemble import BaggingClassifier
 
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
-                       svm.SVC(kernel='linear', C=1, random_state=20), RandomForestClassifier(random_state=20),
+                       svm.SVC(random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
                        SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
-                       LogisticRegression(random_state=20)]
+                       LogisticRegression(random_state=20), BaggingClassifier()]
 
         k = 0
         preds = np.zeros((len(classifiers), dataSize))
