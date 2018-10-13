@@ -1,16 +1,15 @@
 import AuxiliaryFunctions
 import pandas as pd
-from pandas import DataFrame
 import re
 import os
+import time as timer
 
 import LTSpice_RawRead as LTSpice
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.grid_search import GridSearchCV
-from sklearn.metrics import confusion_matrix
 
 if __name__ == "__main__":
+    inicio = timer.time()
 
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # raiz do projeto
     CSV_DIR = "{}\CSV\\".format(ROOT_DIR)  # dump de CSVs
@@ -42,6 +41,7 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-
 
         if not os.path.isfile("{}{}".format(CSV_DIR, csv_name)):
+            iniRaw = timer.time()
             print("Obtendo dados do arquivo '{}'...".format(circuito))
             saida, dados, time = AuxiliaryFunctions.LTSpiceReader(circuito)
             saidaCompleta.append(saida)
@@ -69,12 +69,15 @@ if __name__ == "__main__":
 
             dadosOriginais = pd.DataFrame(matriz)
             dadosOriginais.to_csv("{}{}".format(CSV_DIR, csv_name), index=False, header=False)
+            print("Leitura do arquivo raw executada em: ",timer.time()-iniRaw," segundos")
 
         else:
+            iniCsv = timer.time()
             print("Obtendo dados do arquivo '{}' .".format(csv_name))
             dadosOriginais = pd.read_csv("{}{}".format(CSV_DIR, csv_name), header=None, low_memory=False)
+            print("Leitura do arquivo csv executada em: ", timer.time() - iniCsv," segundos")
 
-        print("Leitura do arquivo terminada.\nSalvando características do circuito...")
+        print("Salvando características do circuito...")
 
         circuito = re.sub('\.', '', circuito)
         circuito = re.sub(' ', '_', circuito)
@@ -85,10 +88,12 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-
         # Aplicação do Paa
         # =-=-=-=-=-=-=-=-
+        iniPaa = timer.time()
         print("\nIniciando a aplicação do PAA")
         n_paa_segments = 100
         dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments, dadosOriginais)
         dataSize = dadosPaa.shape[0]
+        print("Aplicação do Paa executada em: ", timer.time() - iniPaa)
 
         pltName = "PAA"
         plotTargets[pltName] = dadosPaa
@@ -115,13 +120,11 @@ if __name__ == "__main__":
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
                        LogisticRegression(random_state=20)]
 
-        # classifiers = [GaussianNB()]#,AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
-        #               RandomForestClassifier(random_state=20)]
-        # classifiers = [AdaBoostClassifier(random_state=20)]
         k = 0
         preds = np.zeros((len(classifiers), dataSize))
 
         for i, clf in enumerate(classifiers):
+            iniPreds = timer.time()
             clfName = ("[{}]_{}".format(i, clf.__class__.__name__))
             test_score, cnf_matrix, \
             clfs = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, [], 0)
@@ -132,6 +135,7 @@ if __name__ == "__main__":
             for j in range(dataSize):
                 preds[k][j] = clfs.predict(dadosPaa.iloc[j, :].values.reshape(1, -1))
 
+            print("Treino, teste e predições do {} executados em: {} segundos\n\n".format(clfName,timer.time() - iniPreds))
             plotTargets[clfName] = preds[k]
             k += 1
 
@@ -143,21 +147,23 @@ if __name__ == "__main__":
         parameters = {'learning_rate': [0.1, 0.5, 1.],
                       'random_state': [20, 40, 120, 360]}
 
+        iniGscv = timer.time()
         results = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, parameters, 1)
+        print("Otimização de parâmetros executada em: ", timer.time() - iniGscv," segundos")
 
         print("Melhor Score: ", results['best_score'])
         print("Melhores Parâmetros: ", results['best_params'])
         print("\n------\nModelo não-otimizado\n------")
         print("F-score dos dados de teste: {:.4f}".format(results['test_score']))
         print("\n------\nModelo otimizado\n------")
-        print("F-score dos dados de teste: {:.4f}".format(results['final_test_score']))
+        print("F-score dos dados de teste: {:.4f}\n\n".format(results['final_test_score']))
         adjusted_predictions = results['best_clf'].predict(dadosOriginais.T)
         plotTargets["PREDICOES_FINAIS"] = adjusted_predictions.T
 
         print("Confusion Matrix:\n{}\n".format(results['cnf_matrix']))
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        # implementação dos teste de validação de resultado
+        # Exportação dos resultados
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         predTable = pd.DataFrame(preds)
 
@@ -174,3 +180,5 @@ if __name__ == "__main__":
                 plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight',transparent = True)
             except:
                 plt.savefig(key)
+
+    print("Executado em: ", timer.time()-inicio," segundos")
