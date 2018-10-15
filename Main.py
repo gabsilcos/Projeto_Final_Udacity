@@ -8,6 +8,8 @@ import LTSpice_RawRead as LTSpice
 import matplotlib.pyplot as plt
 import numpy as np
 
+plt.rcParams['figure.figsize'] = (30,15)
+
 if __name__ == "__main__":
     inicio = timer.time()
 
@@ -19,11 +21,11 @@ if __name__ == "__main__":
     Descomentar o circuito ou grupo de circuitos que será observado
     '''
 
-    #circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw', 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw',
-    #           'Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw', 'CTSV mc + 4bitPRBS [FALHA].raw']
+    circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw','Sallen Key mc + 4bitPRBS [FALHA].raw',
+                 'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw','CTSV mc + 4bitPRBS [FALHA].raw']
 
     # circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
@@ -36,6 +38,7 @@ if __name__ == "__main__":
         csv_name = "{}.csv".format(csv_name)
         plotTargets = {}
         pltName = ''
+        scores = {}
         # =-=-=-=-=-=-=-=-
         # início da leitura do arquivo
         # =-=-=-=-=-=-=-=-
@@ -104,7 +107,6 @@ if __name__ == "__main__":
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         print("\nIniciando a aplicação dos métodos de aprendizagem supervisionados")
         from sklearn.svm import SVC
-        from sklearn import svm
         from sklearn.ensemble import AdaBoostClassifier
         from sklearn.tree import DecisionTreeClassifier
         from sklearn.ensemble import RandomForestClassifier
@@ -115,7 +117,7 @@ if __name__ == "__main__":
         from sklearn.ensemble import BaggingClassifier
 
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
-                       svm.SVC(random_state=20), RandomForestClassifier(random_state=20),
+                       SVC(random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
                        SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
@@ -132,6 +134,7 @@ if __name__ == "__main__":
 
             cm = AuxiliaryFunctions.confusionMatrixPlot(cnf_matrix, circuito, clfName, dataSize)
             print("Score de teste: {}\nConfusion Matrix:\n{}\n".format(test_score, cm))
+            scores[clfName] = test_score
 
             for j in range(dataSize):
                 preds[k][j] = clfs.predict(dadosPaa.iloc[j, :].values.reshape(1, -1))
@@ -161,7 +164,8 @@ if __name__ == "__main__":
         adjusted_predictions = results['best_clf'].predict(dadosOriginais.T)
         plotTargets["PREDICOES_FINAIS"] = adjusted_predictions.T
 
-        print("Confusion Matrix:\n{}\n".format(results['cnf_matrix']))
+        cm = AuxiliaryFunctions.confusionMatrixPlot(results['cnf_matrix'], circuito, '{}_CM_GSCV'.format(circuito), dataSize)
+        print("Confusion Matrix:\n{}\n".format(cm))
 
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         # Exportação dos resultados
@@ -174,12 +178,15 @@ if __name__ == "__main__":
         for i, key in enumerate(plotTargets.keys()):
             fig = plt.figure(figsize=(15, 15))
             plt.plot(plotTargets[key],",")
-            plt.xlabel("Passo de simulação")
-            plt.ylabel("Grupo de Falha")
+            plt.xlabel("Passo de simulação", fontsize=25)
+            plt.ylabel("Grupo de Falha", fontsize=25)
             print("Plotando gráficos de ", key, "...")
             try:
-                plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight',transparent = True)
+                plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight')
             except:
                 plt.savefig(key)
+
+        for i, key in enumerate(scores.keys()):
+            print("Score do {}: {}".format(key,scores[key]))
 
     print("Executado em: ", timer.time()-inicio," segundos")

@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eec40d99-66dc-4a57-bf87-829015907771" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AuxiliaryFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/AuxiliaryFunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Projeto Final Texto/Projeto Final.docx" beforeDir="false" afterPath="$PROJECT_DIR$/Projeto Final Texto/Projeto Final.docx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,10 +18,10 @@
     <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$AuxiliaryFunctions.coverage" NAME="AuxiliaryFunctions Coverage Results" MODIFIED="1539382576634" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ProjetoFinal$LTSpice_RawRead.coverage" NAME="LTSpice_RawRead Coverage Results" MODIFIED="1518561466192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$optimiz.coverage" NAME="optimiz Coverage Results" MODIFIED="1539050813509" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main_PCA.coverage" NAME="Main_PCA Coverage Results" MODIFIED="1539382707626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main.coverage" NAME="Main Coverage Results" MODIFIED="1539471738055" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main_PCA.coverage" NAME="Main_PCA Coverage Results" MODIFIED="1539567711890" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main.coverage" NAME="Main Coverage Results" MODIFIED="1539568371926" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$wineQuality.coverage" NAME="wineQuality Coverage Results" MODIFIED="1539378861731" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../bitbucket/wineQuality/scripts" />
-    <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main_PAA__1_.coverage" NAME="Main_PAA (1) Coverage Results" MODIFIED="1539139985630" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main_PAA__1_.coverage" NAME="Main_PAA (1) Coverage Results" MODIFIED="1539563988403" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Projeto_Final_Udacity$Main_PAA.coverage" NAME="Main_PAA Coverage Results" MODIFIED="1539123912957" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/dead_file" />
     <SUITE FILE_PATH="coverage/ProjetoFinal$LTSteps.coverage" NAME="LTSteps Coverage Results" MODIFIED="1518538652953" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -70,39 +73,39 @@
     <session id="411703877">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="12" />
+          <entry key="project.closed" value="13" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.3" value="9" />
           <entry key="project.open.time.4" value="5" />
-          <entry key="project.open.time.5" value="6" />
+          <entry key="project.open.time.5" value="7" />
           <entry key="project.open.time.7" value="1" />
-          <entry key="project.opened" value="22" />
+          <entry key="project.opened" value="23" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="5912" />
+          <entry key="py" value="6151" />
           <entry key="txt" value="14" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="14" />
-          <entry key="Python" value="5912" />
+          <entry key="Python" value="6151" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="csv" value="1" />
           <entry key="png" value="10" />
-          <entry key="py" value="22" />
+          <entry key="py" value="23" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Image" value="10" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="Python" value="22" />
+          <entry key="Python" value="23" />
         </counts>
       </usages-collector>
     </session>
@@ -112,14 +115,14 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/AuxiliaryFunctions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
+            <state relative-caret-position="629">
+              <caret line="162" column="37" selection-start-line="162" selection-start-column="37" selection-end-line="162" selection-end-column="37" />
               <folding>
+                <element signature="e#0#22#0" expanded="true" />
                 <element signature="e#651#2250#0" />
                 <element signature="e#2290#2766#0" />
                 <element signature="e#2826#3330#1" />
                 <element signature="e#5539#5735#0" />
-                <element signature="e#5805#6758#0" />
               </folding>
             </state>
           </provider>
@@ -128,8 +131,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="351">
-              <caret line="121" column="79" selection-start-line="121" selection-start-column="79" selection-end-line="121" selection-end-column="79" />
+            <state relative-caret-position="2482">
+              <caret line="158" column="62" selection-start-line="158" selection-start-column="62" selection-end-line="158" selection-end-column="62" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -149,8 +152,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main_PAA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2295">
-              <caret line="145" column="8" selection-start-line="145" selection-start-column="8" selection-end-line="145" selection-end-column="104" />
+            <state relative-caret-position="187">
+              <caret line="101" column="39" selection-start-line="101" selection-start-column="39" selection-end-line="101" selection-end-column="39" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -161,8 +164,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main_PCA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2159">
-              <caret line="138" selection-start-line="138" selection-end-line="138" />
+            <state relative-caret-position="130">
+              <caret line="131" column="59" selection-start-line="131" selection-start-column="59" selection-end-line="131" selection-end-column="59" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -187,6 +190,8 @@
       <find>show</find>
       <find>[6]</find>
       <find>try</find>
+      <find>rcP</find>
+      <find>plc.rcP</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -201,8 +206,8 @@
         <option value="$PROJECT_DIR$/csv_creator.py" />
         <option value="$PROJECT_DIR$/optimiz.py" />
         <option value="$PROJECT_DIR$/dead_file/Main_PAA.py" />
-        <option value="$PROJECT_DIR$/Main_PAA.py" />
         <option value="$PROJECT_DIR$/../../bitbucket/wineQuality/scripts/wineQuality.py" />
+        <option value="$PROJECT_DIR$/Main_PAA.py" />
         <option value="$PROJECT_DIR$/Main_PCA.py" />
         <option value="$PROJECT_DIR$/AuxiliaryFunctions.py" />
         <option value="$PROJECT_DIR$/Main.py" />
@@ -225,7 +230,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -238,15 +242,11 @@
               <item name="Projeto_Final_Udacity" type="462c0819:PsiDirectoryNode" />
               <item name="CSV" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="Projeto_Final_Udacity" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Projeto_Final_Udacity" type="462c0819:PsiDirectoryNode" />
-              <item name="IMG" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="Course" />
     </panes>
   </component>
@@ -267,6 +267,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="Z:\Documentos\GitHub\Projeto_Final_Udacity\CSV" />
       <recent name="Z:\Documentos\GitHub\Projeto_Final_Udacity" />
     </key>
   </component>
@@ -404,9 +405,9 @@
       <list>
         <item itemvalue="Python.Main" />
         <item itemvalue="Python.Main_PCA" />
+        <item itemvalue="Python.Main_PAA (1)" />
         <item itemvalue="Python.AuxiliaryFunctions" />
         <item itemvalue="Python.wineQuality" />
-        <item itemvalue="Python.Main_PAA (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -429,7 +430,7 @@
     <layout>
       <window_info id="Structure" order="0" sideWeight="0.50079745" side_tool="true" weight="0.17113096" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" sideWeight="0.49920255" visible="true" weight="0.20121029" />
+      <window_info content_ui="combo" id="Project" order="2" sideWeight="0.49920255" visible="true" weight="0.204236" />
       <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.50075644" side_tool="true" weight="0.2646154" />
       <window_info anchor="bottom" id="Version Control" order="1" />
       <window_info anchor="bottom" id="Python Console" order="2" weight="0.32923076" />
@@ -638,10 +639,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../../bitbucket/wineQuality/scripts/wineQuality.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="351">
+          <caret line="27" selection-start-line="27" selection-end-line="27" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Main_PAA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2295">
-          <caret line="145" column="8" selection-start-line="145" selection-start-column="8" selection-end-line="145" selection-end-column="104" />
+        <state relative-caret-position="187">
+          <caret line="101" column="39" selection-start-line="101" selection-start-column="39" selection-end-line="101" selection-end-column="39" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
@@ -650,8 +658,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Main_PCA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2159">
-          <caret line="138" selection-start-line="138" selection-end-line="138" />
+        <state relative-caret-position="130">
+          <caret line="131" column="59" selection-start-line="131" selection-start-column="59" selection-end-line="131" selection-end-column="59" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
@@ -660,29 +668,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/AuxiliaryFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
+        <state relative-caret-position="629">
+          <caret line="162" column="37" selection-start-line="162" selection-start-column="37" selection-end-line="162" selection-end-column="37" />
           <folding>
+            <element signature="e#0#22#0" expanded="true" />
             <element signature="e#651#2250#0" />
             <element signature="e#2290#2766#0" />
             <element signature="e#2826#3330#1" />
             <element signature="e#5539#5735#0" />
-            <element signature="e#5805#6758#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../bitbucket/wineQuality/scripts/wineQuality.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="27" selection-start-line="27" selection-end-line="27" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="121" column="79" selection-start-line="121" selection-start-column="79" selection-end-line="121" selection-end-column="79" />
+        <state relative-caret-position="2482">
+          <caret line="158" column="62" selection-start-line="158" selection-start-column="62" selection-end-line="158" selection-end-column="62" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>

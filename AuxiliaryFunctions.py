@@ -17,6 +17,8 @@ from sklearn.metrics import make_scorer
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) #raiz do projeto
 IMG_DIR = "{}\IMG\\".format(ROOT_DIR) #dump de imagens
+plt.rcParams['figure.figsize'] = (30,15)
+#plt.rcParams.update({'font.size': 25})
 
 def LTSpiceReader(Circuito):
     import sys
@@ -32,7 +34,6 @@ def LTSpiceReader(Circuito):
 
     LTR = LTSpice_RawRead.LTSpiceRawRead(raw_filename, traces_to_read=Variavel, loadmem=True)
     fig0 = plt.figure()
-    plt.title("Dados Brutos")
     for trace in LTR.get_trace_names():
         print("\nLendo grandeza: {}".format(LTR.get_trace(trace).name))
         Vo = LTR.get_trace(Variavel)
@@ -55,8 +56,8 @@ def LTSpiceReader(Circuito):
 
     name = "Brutos_{}".format(Circuito)
     name = re.sub('\.', '', name)
-    plt.xlabel("Tempo")
-    plt.ylabel("Amplitute")
+    plt.xlabel("Tempo", fontsize=25)
+    plt.ylabel("Amplitute", fontsize=25)
     plt.savefig("{}{}".format(IMG_DIR,name), bbox_inches='tight')
     print("Grandezas lidas.")
     return (LTR, Dados, time)
@@ -156,10 +157,10 @@ def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
     fig = plt.figure(figsize=(15, 15))
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     classNames = list(range(1, dataSize // 300 + 1))
-    plt.title(title)
+    #plt.title(title)
     plt.colorbar()
-    plt.ylabel('Real')
-    plt.xlabel('Predito')
+    plt.ylabel('Real', fontsize=25)
+    plt.xlabel('Predito', fontsize=25)
     tick_marks = np.arange(len(classNames))
     plt.xticks(tick_marks, classNames, rotation=45)
     plt.yticks(tick_marks, classNames)
