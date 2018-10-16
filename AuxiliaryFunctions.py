@@ -2,7 +2,6 @@ import LTSpice_RawRead
 
 import re
 import os
-import sys
 import itertools
 
 import pandas as pd
@@ -37,10 +36,8 @@ def LTSpiceReader(Circuito):
         Variavel = 'V(bpo)'
     else:
         Variavel = 'V(vout)'
-    if len(sys.argv) > 1:
-        raw_filename = sys.argv[1]
-    else:
-        raw_filename = Circuito
+
+    raw_filename = Circuito
 
     LTR = LTSpice_RawRead.LTSpiceRawRead(raw_filename, traces_to_read=Variavel, loadmem=True)
     fig0 = plt.figure()

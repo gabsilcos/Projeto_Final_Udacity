@@ -34,7 +34,7 @@ if __name__ == "__main__":
                  'Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw','CTSV mc + 4bitPRBS [FALHA].raw']
 
     # circuitos = ['Biquad Highpass Filter mc + 4bitPRBS [FALHA].raw']
-    # circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
+    #circuitos = ['CTSV mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['Sallen Key mc + 4bitPRBS [FALHA].raw']
     # circuitos = ['Nonlinear Rectfier + 4bit PRBS [FALHA] - 300 - 0.2s.raw']
 
