@@ -19,3 +19,41 @@ Os circuitos são:
 * Biquad Highpass Filter mc + 4bitPRBS [FALHA]
 
 * Dados: https://drive.google.com/open?id=1KSEIhl6s4vkloGJGuobKPDel8952DXE4
+
+## Bibliotecas Necessárias
+
+### re<br>
+* Módulo de expressões regulares, usado para manipulação com nomes de arquivos e adaptações de títulos e legendas.<br>
+
+### os<br>
+* Utilizado para a amanipulação de caminhos de sistema, para indicação do local de origem dos arquivos e de destino das plotagens.<br>
+
+### itertools<br>
+* Ferramenta para auxiliar na iteração durante a plotagem da matriz de confusão.<br>
+
+### time<br>
+* Necessário para o controle de tempo de processos.<br>
+
+### pandas<br>
+* Necessário para a manipulção de dataframes e outras estruturas de dados.<br>
+
+### pyplot do matplotlib<br>
+* Necessário para a plotar e salvar os resultados em gráficos.<br>
+
+### numpy<br>
+* Necessário para a manipulação de dados em arrays e algebrismos.<br>
+
+### svm, ensemble, tree, naive_bayes, neighbors, linear_model do sklearn<br>
+* Necessários para a implementação dos métodos de classificação de dados.<br>
+
+### train_test_split do sklearn.model_selection<br>
+* Necessário para a criação dos grupos de treino e teste dos classificadores<br>
+
+### fbeta_score, confusion_matrix, make_scorer do sklearn.metrics
+* Métricas de desempenho<br>
+
+### GridSearchCV do sklearn.grid_search<br>
+* Necessário para a otimização dos classificadores.<br>
+
+### TimeSeriesScalerMeanVariance do tslearn.preprocessing<br>PiecewiseAggregateApproximation do tslearn.piecewise<br>
+* O tslearn é um toolkit dedicado a dados de séries temporais, de onde foi utilizado o método PAA (Piecewise Aggregate Approximation). Mais informações sobre o tslearn são encontradas em: https://tslearn.readthedocs.io/en/latest/
