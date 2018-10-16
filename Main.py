@@ -4,9 +4,18 @@ import re
 import os
 import time as timer
 
-import LTSpice_RawRead as LTSpice
 import matplotlib.pyplot as plt
 import numpy as np
+
+from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import BaggingClassifier
 
 plt.rcParams['figure.figsize'] = (30,15)
 
@@ -39,9 +48,9 @@ if __name__ == "__main__":
         plotTargets = {}
         pltName = ''
         scores = {}
-        # =-=-=-=-=-=-=-=-
-        # início da leitura do arquivo
-        # =-=-=-=-=-=-=-=-
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # INÍCIO DA LEITURA DO ARQUIVO
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         if not os.path.isfile("{}{}".format(CSV_DIR, csv_name)):
             iniRaw = timer.time()
@@ -89,40 +98,28 @@ if __name__ == "__main__":
         plotTargets[pltName] = dadosOriginais
 
         # =-=-=-=-=-=-=-=-
-        # Aplicação do Paa
+        # APLICAÇÃO DO PAA
         # =-=-=-=-=-=-=-=-
         iniPaa = timer.time()
         print("\nIniciando a aplicação do PAA")
         n_paa_segments = 100
         dadosPaa = AuxiliaryFunctions.ApplyPaa(n_paa_segments, dadosOriginais)
         dataSize = dadosPaa.shape[0]
-        print("Aplicação do Paa executada em: ", timer.time() - iniPaa)
+        print("Aplicação do Paa executada em: ",timer.time() - iniPaa)
 
         pltName = "PAA"
         plotTargets[pltName] = dadosPaa
 
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        # implementação do modelo de predição supervisionado
-        # modelo: diversos
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # APLICAÇÃO DOS MÉTODOS DE APRENDIZAGEM
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         print("\nIniciando a aplicação dos métodos de aprendizagem supervisionados")
-        from sklearn.svm import SVC
-        from sklearn.ensemble import AdaBoostClassifier
-        from sklearn.tree import DecisionTreeClassifier
-        from sklearn.ensemble import RandomForestClassifier
-        from sklearn.naive_bayes import GaussianNB
-        from sklearn.neighbors import KNeighborsClassifier
-        from sklearn.linear_model import SGDClassifier
-        from sklearn.linear_model import LogisticRegression
-        from sklearn.ensemble import BaggingClassifier
-
         classifiers = [DecisionTreeClassifier(random_state=20), AdaBoostClassifier(random_state=20),
                        SVC(random_state=20), RandomForestClassifier(random_state=20),
                        GaussianNB(), KNeighborsClassifier(),
                        SGDClassifier(max_iter=5, random_state=20),
                        AdaBoostClassifier(base_estimator=RandomForestClassifier(random_state=20), random_state=20),
                        LogisticRegression(random_state=20), BaggingClassifier()]
-
         k = 0
         preds = np.zeros((len(classifiers), dataSize))
 
@@ -143,9 +140,9 @@ if __name__ == "__main__":
             plotTargets[clfName] = preds[k]
             k += 1
 
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # =-=-=-=-=-=-=-=-=-=-=-=-=
         # OTIMIZAÇÃO DE RESULTADOS
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # =-=-=-=-=-=-=-=-=-=-=-=-=
         clf = AdaBoostClassifier(random_state=20)
         print("Aplicando tuning do modelo...")
         parameters = {'learning_rate': [0.1, 0.5, 1.],
@@ -153,7 +150,7 @@ if __name__ == "__main__":
 
         iniGscv = timer.time()
         results = AuxiliaryFunctions.SupervisedPreds(dadosPaa, clf, parameters, 1)
-        print("Otimização de parâmetros executada em: ", timer.time() - iniGscv," segundos")
+        print("Otimização de parâmetros executada em: ",timer.time() - iniGscv," segundos")
 
         print("Melhor Score: ", results['best_score'])
         print("Melhores Parâmetros: ", results['best_params'])
@@ -166,21 +163,21 @@ if __name__ == "__main__":
 
         cm = AuxiliaryFunctions.confusionMatrixPlot(results['cnf_matrix'], circuito, '{}_CM_GSCV'.format(circuito), dataSize)
         print("Confusion Matrix:\n{}\n".format(cm))
-
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        # Exportação dos resultados
-        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        # PUBLICAÇÃO/EXPORTAÇÃO DE RESULTADOS
+        # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         predTable = pd.DataFrame(preds)
 
         fileName = ("{}verifica_{}".format(CSV_DIR, csv_name))
         predTable.to_csv(fileName, index=False, header=False, sep=';')
 
         for i, key in enumerate(plotTargets.keys()):
-            fig = plt.figure(figsize=(15, 15))
+            fig = plt.figure()
             plt.plot(plotTargets[key],",")
             plt.xlabel("Passo de simulação", fontsize=25)
             plt.ylabel("Grupo de Falha", fontsize=25)
-            print("Plotando gráficos de ", key, "...")
+            print("Plotando gráficos de ",key, "...")
             try:
                 plt.savefig("{}{}_{}".format(IMG_DIR, circuito, key), bbox_inches='tight')
             except:
@@ -189,4 +186,4 @@ if __name__ == "__main__":
         for i, key in enumerate(scores.keys()):
             print("Score do {}: {}".format(key,scores[key]))
 
-    print("Executado em: ", timer.time()-inicio," segundos")
+    print("Executado em: ",timer.time()-inicio," segundos")

@@ -1,28 +1,38 @@
 import LTSpice_RawRead
+
 import re
 import os
+import sys
+import itertools
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import itertools
 
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.piecewise import PiecewiseAggregateApproximation
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import fbeta_score
-from sklearn.metrics import r2_score,confusion_matrix
+from sklearn.metrics import confusion_matrix
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import make_scorer
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) #raiz do projeto
 IMG_DIR = "{}\IMG\\".format(ROOT_DIR) #dump de imagens
 plt.rcParams['figure.figsize'] = (30,15)
-#plt.rcParams.update({'font.size': 25})
+
 
 def LTSpiceReader(Circuito):
-    import sys
-    import matplotlib.pyplot as plt
+    '''
+    Comanda a leitura da grandeza de interesse através do LTSpiceRawRead 
+    
+	:param Circuito: nome do arquivo do circuito que será tratado
+    :return: LTR (objeto de múltiplos tipos de dados do raw reader), Dados (lista com
+	         os dados do trace da grandeza de interesse), time (lista com os passos de
+			 tempo)
+    '''
+    
     if Circuito == 'CTSV mc + 4bitPRBS [FALHA].raw' or Circuito == 'REDUX.raw':
         Variavel = 'V(bpo)'
     else:
@@ -48,11 +58,6 @@ def LTSpiceReader(Circuito):
             time.append(valueTime)
             plt.plot(valueTime, ValueVar)
         print("\"{}\" lido.".format(LTR.get_trace(trace).name))
-    '''
-    print("Dados brutos:\n",Dados[0:10],"\n")  # verify data structure by looking at the five first rows
-    print("Passos de tempo:\n",time[0:10],"\n")  # verify data structure by looking at the five first rows
-    print("Dados do LTR:\n",LTR[0:10],"\n")  # verify data structure by looking at the five first rows
-    '''
 
     name = "Brutos_{}".format(Circuito)
     name = re.sub('\.', '', name)
@@ -64,6 +69,13 @@ def LTSpiceReader(Circuito):
 
 
 def ApplyPaa(n_paa_segments,df):
+    '''
+    Aplica o PAA no dataframe fornecido.
+
+    :param n_paa_segments: quantidade de segmento do PAA para redução de dados
+    :param df: dataframe com dados em que se deseja aplicar o PAA
+    :return: df após aplicação do PAA
+    '''
     df = df.values.T.tolist()
     scaler = TimeSeriesScalerMeanVariance(mu=0., std=1.)
     dadosPaa = scaler.fit_transform(df)
@@ -140,6 +152,13 @@ def SupervisedPreds(df,clf,parameters,optimization):
 
 
 def findVout(traces):
+    '''
+    Acha o índice da grandeza de interesse (Vout) dentro da lista de traces do objeto do LTSpiceRawRead
+
+    :param traces: lista de traces de saída
+    :return: voutIndex, índice de Vout
+    '''
+    
     voutIndex = None
     for i, trace in enumerate(range(0, len(traces))):
         if traces[trace].name == 'V(bpo)' or traces[trace].name == 'V(vout)':
@@ -149,6 +168,16 @@ def findVout(traces):
 
 
 def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
+    '''
+    Normaliza e plota a matriz de confusão das predições de um classificador
+
+    :param cnf_matrix: matriz de confusão
+    :param circuito: nome do circuito em questão
+    :param clfName: nome do classificador
+    :param dataSize: quantidade de dados do dataframe sendo classificado
+    :return: cm, a matriz de confusão normalizada
+    '''
+    
     cm = 100 * cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
 
     title = '{}_CM_{}'.format(circuito, clfName)
