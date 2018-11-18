@@ -102,6 +102,40 @@ Os circuitos são:
 
 - - - -
 
+### Instruções de uso
+
+Antes de rodar o código, certifique-se de que as pastas e arquivos necessários ao projeto estejam presentes... onde devem estar presentes.
+
+<details>
+<summary>Pastas</summary><p>
+
+1. Criar na raíz da pasta reservada para o projeto uma pasta chamada IMG, destinada a guardar os gráficos e figuras gerados pelo código;
+2. Criar na raíz da pasta reservada para o projeto uma pasta chamada CSV, destinada a guardas os dataframes lidos do arquivo _raw_ em formato _csv_, dentre outros, para consultas posteriores;
+
+</p>
+</details>
+
+
+<details>
+<summary>Arquivos</summary><p>
+
+1. Certifique-se de que os arquivos de entrada _raw_, _op.raw_, _net_ e _log_ estejam presentes na raíz da pasta do projeto antes de rodar o código principal pela primeira vez;
+2. Para as execuções posteriores, certifique-se de que os arquivos _csv_ referentes aos circuitos utilizados estejam presentes na pasta _CSV_;
+3. Certifique-se de que na raíz da pasta se encontram os arquivos _Main.py_ e _AuxiliaryFunctions.py_;
+
+</p>
+</details>
+
+
+<details>
+<summary>Para rodar o código</summary><p>
+
+Certifique-se de ter preenchido todos os pré-requisitos citados anteriormente (todos os arquivos e pastas nos seus devidos lugares) e então rode o arquivo _Main.py_ na IDE de sua preferência.
+</p>
+</details>
+
+- - - -
+
 
 ### Agradecimentos e Disclaimer
 
