@@ -7,6 +7,7 @@ import itertools
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.piecewise import PiecewiseAggregateApproximation
@@ -20,6 +21,7 @@ from sklearn.metrics import make_scorer
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) #raiz do projeto
 IMG_DIR = "{}\IMG\\".format(ROOT_DIR) #dump de imagens
 plt.rcParams['figure.figsize'] = (30,15)
+plt.rcParams.update({'font.size': 25})
 
 
 def LTSpiceReader(Circuito):
@@ -180,10 +182,10 @@ def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
     title = '{}_CM_{}'.format(circuito, clfName)
     cmap = plt.cm.Blues
 
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure(figsize=(25, 25))
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     classNames = list(range(1, dataSize // 300 + 1))
-    #plt.title(title)
+    plt.title('{}_CM_{}'.format(circuito.split('_')[0], clfName))
     plt.colorbar()
     plt.ylabel('Real', fontsize=25)
     plt.xlabel('Predito', fontsize=25)
@@ -203,3 +205,93 @@ def confusionMatrixPlot(cnf_matrix,circuito,clfName,dataSize):
     cm = pd.DataFrame(cm).apply(f)
 
     return cm
+
+
+def plotHistogram(df,ckt):
+    '''
+    Plota o histograma e fornece dados estatísticos sobre o dataframe
+    fornecido
+
+    :param df: dataframe que será analisado
+    :param ckt: nome do circuito em questão
+    :return: -
+    '''
+
+    statData = 0
+    for i in range(df.shape[1]):
+        statData += df[i]
+
+    statData = statData / df.shape[1] + 1
+    print("Estatísticas da média dos valores totais:\n{}".format(statData.describe()))
+
+    dfCentral = {}
+    dfDisp = {}
+    dfCentral['Média'] = statData.mean()
+    dfCentral['Mediana'] = statData.median()
+    dfCentral['Moda'] = statData.mode()[0]
+    dfCentral['Min'] = statData.min()
+    dfCentral['Max'] = statData.max()
+    dfDisp['Assimetria'] = statData.skew()
+    dfDisp['Curtose'] = statData.kurtosis()
+    dfDisp['Range'] = statData.max() - statData.min()
+    dfDisp['Variância'] = statData.var()
+    dfDisp['DesvioPadrão'] = statData.std()
+
+    print("Análise de Tendência Central:")
+    for key in dfCentral:
+        print("{}: {}".format(key, dfCentral[key]))
+
+    print("\nAnálise de dispersão: ")
+    for key in dfDisp:
+        print("{}: {}".format(key, dfDisp[key]))
+
+    pltName = ("Histograma")
+    fig = plt.figure()
+
+    mu = dfCentral['Média']
+    sigma = dfDisp['DesvioPadrão']
+    numBins = 150   #encontrado por experimentação
+    cm = plt.cm.get_cmap('Paired')
+
+    n, bins, patches = plt.hist(statData, numBins, normed=1, color='green')
+
+    #substitui a cor padrão pelo colormap
+    col = (n - n.min()) / (n.max() - n.min())
+    for c, p in zip(col, patches):
+        plt.setp(p, 'facecolor', cm(c))
+
+    # linha que melhor representa os dados
+    y = mlab.normpdf(bins, mu, sigma)
+    l = plt.plot(bins, y, 'r--', linewidth=3)
+    plt.xlabel('V(out)',fontsize=25)
+    plt.ylabel('Probabilidade(%)',fontsize=25)
+    plt.title("Histograma [{}]: mu = {:0.3f} :: sigma = {:0.3f}".format(ckt.split('_')[0], mu, sigma),fontsize=25)
+    plt.grid(True)
+
+    # ajuste para evitar um bug no ylabel
+    plt.subplots_adjust(left=0.15)
+
+    plt.savefig("{}{}_{}.png".format(IMG_DIR, ckt, pltName), bbox_inches='tight')
+
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # BOXPLOT
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    pltName = ("BoxPlot")
+    fliers = dict(markerfacecolor='b', marker='o')
+    box = dict(color='red', linewidth=4, facecolor='tan')
+    whiskers = dict(color='red', linewidth=4)
+    caps = dict(color='red', linewidth=4)
+    median = dict(color='red', linewidth=5)
+
+    fig1, ax = plt.subplots()
+    ax.set_title("{}: {}".format(pltName, ckt.split('_')[0]))
+    ax.boxplot(statData, notch='true', flierprops=fliers, meanline=True, vert=False, patch_artist=True,
+               showmeans=True,
+               boxprops=box,
+               whiskerprops=whiskers,
+               capprops=caps,
+               medianprops=median)
+    plt.yticks([])
+    plt.savefig("{}{}_{}".format(IMG_DIR, ckt, pltName), bbox_inches='tight')
+
+    return

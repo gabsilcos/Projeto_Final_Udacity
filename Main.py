@@ -18,6 +18,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import BaggingClassifier
 
 plt.rcParams['figure.figsize'] = (30,15)
+plt.rcParams.update({'font.size': 25})
 
 if __name__ == "__main__":
     inicio = timer.time()
@@ -97,6 +98,8 @@ if __name__ == "__main__":
         pltName = ("Dados_Originais")
         plotTargets[pltName] = dadosOriginais
 
+        AuxiliaryFunctions.plotHistogram(dadosOriginais,circuito)
+
         # =-=-=-=-=-=-=-=-
         # APLICAÇÃO DO PAA
         # =-=-=-=-=-=-=-=-
@@ -154,6 +157,7 @@ if __name__ == "__main__":
 
         print("Melhor Score: ", results['best_score'])
         print("Melhores Parâmetros: ", results['best_params'])
+        print("Melhor Estimador: ", results['best_clf'])
         print("\n------\nModelo não-otimizado\n------")
         print("F-score dos dados de teste: {:.4f}".format(results['test_score']))
         print("\n------\nModelo otimizado\n------")
@@ -175,6 +179,7 @@ if __name__ == "__main__":
         for i, key in enumerate(plotTargets.keys()):
             fig = plt.figure()
             plt.plot(plotTargets[key],",")
+            plt.title("{}_{}".format(circuito, key))
             plt.xlabel("Passo de simulação", fontsize=25)
             plt.ylabel("Grupo de Falha", fontsize=25)
             print("Plotando gráficos de ",key, "...")
